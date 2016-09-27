@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Radio</string>
+    
+    <string name="action_settings">Settings</string>
+    
+    <!-- 通用 -->
+    <string name="content_img">This is a image.</string>
+    <string name="content_btn">This is a button.</string>
+    
+    <string name="sure">Sure</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    
+    <!-- dialog_auto_seek.xml -->
+    <string name="das_seek_station">Search radio station</string>
+    <string name="das_Keep_general_list">Keep collecting station</string>
+    <string name="das_empty_general_list">Empty have collection station</string>
+    
+	<!-- dialog_update_desc.xml -->
+    <string name="dud_update_desc">: update channel description?</string>
+    <string name="dud_input_key_word">Please, input key word!</string>
+    
+    <!-- dialog_del_station.xml -->
+    <string name="dds_del_station_format">Delete station: %1$s?</string>
+    <string name="dds_del_all">All Remove</string>
+    
+</resources>

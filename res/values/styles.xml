@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    
+    <!-- 下面是各种主题 -->
+    
+    <!-- 依赖于应用程序接口的基本应用程序主题。在新设备上可以通过res/values-vXX/styles.xml替换该AppBaseTheme。 -->
+    <style name="AppBaseTheme" parent="android:Theme.Light"/>
+
+    <!-- 没有标题-->
+    <style name="NoTitle" parent="android:Theme.Holo.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/transparent</item>
+    </style>
+    
+    <!-- 没有标题和ActionBar-->
+    <style name="NoTitleAndActionBar" parent="android:Theme.Holo.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:background">@color/transparent</item>
+    </style>
+    
+    <!-- 没有标题和ActionBar，且有背景 -->
+   	<style name="BackGround" parent="@android:style/Theme" >
+   	    <item name="android:windowNoTitle">true</item>
+   	    <item name="android:windowActionBar">false</item>
+        <item name="android:windowBackground">@color/gray</item>
+    </style>
+   	
+   	<!--  android:theme="@android:style/Theme.Holo.NoActionBar" -->
+    
+    <style name="MyDialogTheme" parent="android:Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@color/white</item>
+        
+    </style>
+    
+    <style name="MyDialogTheme2" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@color/transparent</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+    
+    <style name="MyDialogTheme3" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@color/gray2</item>
+        <item name="android:windowBackground">@color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+    
+</resources>

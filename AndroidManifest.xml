@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.android.hqs"
+    android:versionCode="1"
+    android:versionName="1.1.1" >
+
+    <uses-sdk
+        android:minSdkVersion="17"
+        android:maxSdkVersion="19"
+        android:targetSdkVersion="19" />
+    
+    <!-- 创建一个"com.bbk.iqoo.logsystem.permission.READ_DATA"权限 -->
+    <permission
+        android:name="com.android.hqs.permission.READ_DATA"
+        android:protectionLevel="signatureOrSystem" />
+    <permission
+        android:name="com.android.hqs.permission.WRITE_DATA"
+        android:protectionLevel="signatureOrSystem" />
+    
+    <!-- 声明，我们要使用"com.bbk.iqoo.logsystem.permission.READ_DATA"权限，如果不添加使用权限声明，那么接收器会拒绝接受消息 -->
+	<uses-permission android:name="com.android.hqs.permission.READ_DATA" />
+    <uses-permission android:name="com.android.hqs.permission.WRITE_DATA" />
+    
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+
+</manifest>

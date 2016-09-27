@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <declare-styleable name="HqsPager">
+        <attr name="style">
+            <enum name="standard" value="0" />
+            <enum name="tablet" value="1" />
+            <enum name="cube_in" value="2" />
+            <enum name="cube_out" value="3" />
+            <enum name="flip_vertical" value="4" />
+            <enum name="flip_horizontal" value="5" />
+            <enum name="stack" value="6" />
+            <enum name="zoom_in" value="7" />
+            <enum name="zoom_out" value="8" />
+            <enum name="rotate_up" value="9" />
+            <enum name="rotate_down" value="10" />
+            <enum name="accordion" value="11" />
+        </attr>
+        <attr name="fade_enabled" format="boolean" />
+        <attr name="outline_enabled" format="boolean" />
+        <attr name="outline_color" format="color|reference" />
+    </declare-styleable>
+
+    <!-- 卫星菜单(satellite menu)的自定义属性 -->
+    <declare-styleable name="ArcMenu">
+
+        <!-- 卫星菜单在屏幕的位置 -->
+        <attr name="position">
+            <enum name="left_top" value="0" />
+            <enum name="left_bottom" value="1" />
+            <enum name="right_top" value="2" />
+            <enum name="right_bottom" value="3" />
+        </attr>
+        
+		<!-- 卫星菜单半径 -->
+        <attr name="radius"/>
+        
+        <!-- 卫星菜单是否展开 -->
+        <attr name="status">
+            <enum name="close" value="0" />
+            <enum name="open" value="1" />
+        </attr>
+    </declare-styleable>
+    
+    <attr name="radius" format="dimension"></attr>
+    
+    <declare-styleable name="SatelliteMenu">
+        <attr name="expand_duration" format="integer" />
+        <attr name="close_onclick" format="boolean" />
+        <attr name="total_spacing_degree" format="float" />
+        <attr name="satellite_distance" format="dimension" />
+        <attr name="main_image" format="reference" />
+    </declare-styleable>
+    
+    <declare-styleable name="TopBar">
+         <attr name="title_text" format="string" />
+         <attr name="title_text_size" format="dimension" />
+         <attr name="title_text_color" format="color" />
+         <attr name="left_text" format="string" />
+         <attr name="left_text_size" format="string" />
+         <attr name="left_text_color" format="color" />
+         <attr name="left_background" format="reference|color" />
+         <attr name="right_text" format="string" />
+         <attr name="right_text_size" format="string" />
+         <attr name="right_text_color" format="color" />
+         <attr name="right_background" format="reference|color" />
+    </declare-styleable>
+    
+    <declare-styleable name="RoundImageView">
+        <attr name="round_width" format="float" />
+        <attr name="round_height" format="float" />
+    </declare-styleable>
+    
+    <declare-styleable name="GamePintuLayout">
+        <attr name="game_src" format="reference|color" />
+    </declare-styleable>
+    
+</resources>
