@@ -1,14 +1,10 @@
 package android.hqs.basic;
 
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.res.Resources;
 import android.util.Log;
 
 /**
- * 给纯私人创建的打印日志的工具类，减少类的重复代码
+ * 纯打印日志的工具类，减少类的重复代码
  * @author hqs2063594
- *
  */
 public class BasicDebug {
 	
@@ -18,37 +14,12 @@ public class BasicDebug {
 		return Tag;
 	}
 	
-	private final Context context;
-	
 	/**
 	 * 初始化构造方法
-	 * @param context 不能为空
-	 * @param clazz 类名，用于生成打印日志的标签，不能为空
+	 * @param clazz 类名，通过{@link #getClass()}获取实例的类名，非包名.类名
 	 */
-	public BasicDebug(Context context){
-		if (context == null) {
-			throw new NullPointerException("context can not be null!");
-		}
+	public BasicDebug(){
 		this.Tag = getClass().getSimpleName();
-		this.context = context;
-	}
-	
-	public Context getContext() {
-		return context;
-	}
-	
-	public ContentResolver getContentResolver() {
-		if (context == null) {
-			throw new NullPointerException("You Have not set context, plese check!");
-		}
-		return context.getContentResolver();
-	}
-	
-	public Resources getRes(){
-		if (context == null) {
-			throw new NullPointerException("You Have not set context, plese check!");
-		}
-		return context.getResources();
 	}
 	
 	// ========================================================================================================
