@@ -1,4 +1,4 @@
-package android.hqs.helper;
+package android.hqs.basic;
 
 import android.app.ActivityManager;
 import android.app.AlarmManager;
@@ -11,7 +11,7 @@ import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.hardware.usb.UsbManager;
-import android.hqs.basic.BasicDebug;
+import android.hqs.helper.DebugHelper;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
@@ -23,31 +23,33 @@ import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-/**
- * 通过上下文获取各种管理器
- * 
- * @author 胡青松
- */
-public class ManagerHelper extends BasicDebug {
-
+public class BasicContext extends DebugHelper {
+	
 	private final Context context;
 	
 	/**
 	 * 初始化构造方法
 	 * @param context 不能为空，保证后续要用的上下文的地方不异常
+	 * @author 胡青松
+	 * @Description 在构造里还会通过实例的类对象来创建来创建日志标签，我的标签都以"hqs."开头
 	 */
-	public ManagerHelper(Context context){
+	public BasicContext(Context context){
 		if (context == null) {
 			throw new NullPointerException("context can not be null!");
 		}
 		this.context = context;
+		makeTag(getClass());
 	}
 	
 	// ========================================================================================================
-	// ==================================== TODO 下面是公布给子类的方法 ============================================
+	// ==================================== TODO 下面是公布给子类的方法 ==========================================
 	// ========================================================================================================
 	protected final Context getContext() {
 		return context;
+	}
+	
+	public final String getClsName(){
+		return getClass().getSimpleName();
 	}
 	
 	protected final ContentResolver getContentResolver() {

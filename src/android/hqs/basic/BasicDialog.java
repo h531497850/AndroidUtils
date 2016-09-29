@@ -8,8 +8,8 @@ import android.content.DialogInterface.OnKeyListener;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
+import android.hqs.helper.DebugHelper;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -33,15 +33,7 @@ import android.view.WindowManager.LayoutParams;
 public abstract class BasicDialog extends DialogFragment implements OnTouchListener,
 		OnClickListener, OnLongClickListener, OnKeyListener {
 	
-	/**
-	 * 打印日志的标签。<br>
-	 * 注意：该数据不能随意修改，更不能为空。
-	 */
-	private final String Tag;
-	/** 获取实例类名 */
-	public final String getClsName() {
-		return Tag;
-	}
+	private DebugHelper mDebug;
 	
 	/**
 	 * 用户传入布局文件的id。<br>
@@ -64,16 +56,10 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	 */
 	private SparseArray<View> mViews;
 	
-	public View getConvertView() {
-		return mConvertView;
-	}
 	private Point mPoint;
 	private int mGravity = Gravity.CENTER;
 	
 	private boolean isTouch;
-	public boolean isTouch() {
-		return isTouch;
-	}
 	
 	/** 在这里设置你的布局id */
 	protected abstract int setLayoutId();
@@ -83,11 +69,14 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	 */
 	public BasicDialog(){
 		super();
-		Tag = getClass().getSimpleName();
+		mDebug = new DebugHelper();
+		mDebug.makeTag(getClass());
+		
 		layoutId = setLayoutId();
 		mViews = new SparseArray<View>();
-		info("initialize--" + Tag + "--constructor done");
+		info("initialize----constructor done");
 	}
+	
 	
 	/**View已创建完毕，可在此控制View或注册事件等*/
 	protected abstract void initComponents();
@@ -95,7 +84,7 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		info("onCreate()");
+		info("onCreate()", "start");
 		/*
 		 * 控制显示的对话框是否可撤销。用该方法而不是直接调用Dialog.setCancelable(boolean)，因为DialogFragment的改变基于此的行为。
 		 */
@@ -104,7 +93,7 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		info("onCreateView()");
+		info("onCreateView()", "start");
 		if(mConvertView == null) {
 			/*
 			 * 这里传入3个参数
@@ -131,8 +120,8 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		info("onDestroy()");
 		mConvertView = null;
+		info("onDestroy()", "done");
 	}
 	
 	@Override
@@ -232,8 +221,13 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	// ========================================================================================================
 	// =========================================== TODO 下面是公开的方法 ========================================
 	// ========================================================================================================
+	public View getConvertView() {
+		return mConvertView;
+	}
+	public boolean isTouch() {
+		return isTouch;
+	}
 	/**
-	 * 
 	 * @param manager activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
 	 */
 	public void show(FragmentManager manager) {
@@ -243,7 +237,6 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	}
 	
 	/**
-	 * 
 	 * @param manager activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
 	 * @param x 相对于gravity的X轴坐标
 	 * @param y 相对于gravity的Y轴坐标
@@ -253,7 +246,6 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 	}
 	
 	/**
-	 * 
 	 * @param manager activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
 	 * @param gravity 相对位置
 	 * @param x 相对于gravity的X轴坐标
@@ -290,139 +282,86 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 		mConvertView.setVisibility(visibility);
 	}
 	
+	/** 获取实例类名 */
+	public final String getClsName() {
+		return getClass().getSimpleName();
+	}
+	
 	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
-	private boolean DEBUG = false;
 	protected final void setDebug(boolean debug) {
-		DEBUG = debug;
+		mDebug.setDebug(debug);
 	}
 	
+	// 调试
 	protected final void debug(Object obj) {
-		if(DEBUG) Log.d(Tag, String.valueOf(obj));
+		mDebug.debug(obj);
 	}
-	/**
-	 * 蓝色，调试信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
 	protected final void debug(String methodName, Object obj) {
-		if(DEBUG) Log.d(Tag, methodName + " --> " + String.valueOf(obj));
+		mDebug.debug(methodName, obj);
 	}
 	protected final void debug(String methodName, Throwable tr) {
-		if(DEBUG) Log.d(Tag, methodName, tr);
+		mDebug.debug(methodName, tr);
 	}
 	
+	// 普通
 	protected final void info(Object obj) {
-		if(DEBUG) Log.i(Tag, String.valueOf(obj));
+		mDebug.info(obj);
 	}
-	/**
-	 * 绿色，正常信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
 	protected final void info(String methodName, Object obj) {
-		if(DEBUG) Log.i(Tag, methodName + " --> " + String.valueOf(obj));
+		mDebug.info(methodName, obj);
 	}
 	protected final void info(String methodName, Throwable tr) {
-		if(DEBUG) Log.i(Tag, methodName, tr);
+		mDebug.info(methodName, tr);
 	}
-	
-	protected final void verbose(Object obj) {
-		if(DEBUG) Log.v(Tag, String.valueOf(obj));
-	}
-	/**
-	 *  黑色，冗长信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void verbose(String methodName, Object obj) {
-		if(DEBUG) Log.v(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void verbose(String methodName, Throwable tr) {
-		if(DEBUG) Log.v(Tag, methodName, tr);
-	}
-	
-	protected final void error(Object obj) {
-		if(DEBUG) Log.e(Tag, String.valueOf(obj));
-	}
-	/**
-	 *  红色，错误信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void error(String methodName, Object obj) {
-		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void error(String methodName, Throwable tr) {
-		if(DEBUG) Log.e(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj), tr);
-	}
-	
-	protected final void wtf(Object obj) {
-		if(DEBUG) Log.wtf(Tag, String.valueOf(obj));
-	}
-	/**
-	 * 紫色，不应发生的信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void wtf(String methodName, Object obj) {
-		if(DEBUG) Log.wtf(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		if(DEBUG) Log.wtf(Tag, methodName, tr);
-	}
-	
 	protected void info(String listName, byte[] list){
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.format("%02x ", list[i]) + ",";
-			}
-			Log.i(Tag, listName);
-		}
+		mDebug.info(listName, list);
 	}
 	protected final void info(String methodName, String listName, byte[] list) {
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.format("%02x ", list[i]) + ",";
-			}
-			Log.i(Tag, methodName + " --> " + listName);
-		}
+		mDebug.info(methodName, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.valueOf(list[i]) + ",";
-			}
-			Log.i(Tag, listName);
-		}
+		mDebug.info(listName, list);
 	}
 	protected final void info(String methodName, String listName, int[] list) {
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.valueOf(list[i]) + ",";
-			}
-			Log.i(Tag, methodName + " --> " + listName);
-		}
+		mDebug.info(methodName, listName, list);
+	}
+	
+	// 正常
+	protected final void verbose(Object obj) {
+		mDebug.verbose(obj);
+	}
+	protected final void verbose(String methodName, Object obj) {
+		mDebug.verbose(methodName, obj);
+	}
+	protected final void verbose(String methodName, Throwable tr) {
+		mDebug.verbose(methodName, tr);
+	}
+	
+	// 错误
+	protected final void error(Object obj) {
+		mDebug.error(obj);
+	}
+	protected final void error(String methodName, Object obj) {
+		mDebug.error(methodName, obj);
+	}
+	protected final void error(String methodName, Throwable tr) {
+		mDebug.error(methodName, tr);
+	}
+	protected final void error(String methodName, Object obj, Throwable tr) {
+		mDebug.error(methodName, obj, tr);
+	}
+	
+	// 不应发生的
+	protected final void wtf(Object obj) {
+		mDebug.wtf(obj);
+	}
+	protected final void wtf(String methodName, Object obj) {
+		mDebug.wtf(methodName, obj);
+	}
+	protected final void wtf(String methodName, Throwable tr) {
+		mDebug.wtf(methodName, tr);
 	}
 	
 }

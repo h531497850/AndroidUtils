@@ -3,7 +3,7 @@ package android.hqs.helper.frame;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
-import android.hqs.basic.BasicDebug;
+import android.hqs.basic.BasicContext;
 import android.hqs.util.HandlerUtil;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -20,7 +20,7 @@ import android.view.WindowManager;
  * 注意：悬浮框加载的是默认的布局参数，如果您想要自定义，可以在创建实例后设置。
  * @author hqs2063594
  */
-public abstract class FloatingBox extends BasicDebug implements
+public abstract class FloatingBox extends BasicContext implements
 		OnClickListener,OnLongClickListener {
 	
 	private WindowManager mWindow;

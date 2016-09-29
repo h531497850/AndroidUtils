@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import android.hqs.helper.DebugHelper;
 
 /**
  * {@link #SQLiteOpenHelper}是一个辅助类，用来管理数据库的创建和版本他，它提供两个方面的功能 :
@@ -61,11 +61,7 @@ import android.util.Log;
  */
 public abstract class BasicSQL extends SQLiteOpenHelper {
 	
-	private final String Tag;
-	/** 获取实例对象的类名，即子类类名，而不是父类的类名 */
-	public final String getClsName() {
-		return Tag;
-	}
+	private DebugHelper mDebug;
 	
 	/** 在子类中通过该方法获取父类的对象，来通知子类和父类，以达到线程安全的目的（由于数据库不能异步操作）。
 	 * read时不锁，提高效率，write时一定要锁；不过SQLiteOpenHelper已经锁住了。*/
@@ -101,7 +97,8 @@ public abstract class BasicSQL extends SQLiteOpenHelper {
     public BasicSQL(Context context, String sqlName, int version, CursorFactory factory) {  
         //必须通过super调用父类当中的构造函数  
         super(context, sqlName, factory, version);
-        this.Tag = getClass().getSimpleName();
+        mDebug = new DebugHelper();
+		mDebug.makeTag(getClass());
         // 以写的方式打开数据库对应的SQLiteDatabase对象 ，这个时候创建数据库
         //getWritableDatabase();
     }
@@ -192,138 +189,88 @@ public abstract class BasicSQL extends SQLiteOpenHelper {
     }
 
 	// ========================================================================================================
+	// ==================================== TODO 下面是公开的方法 ===============================================
+	// ========================================================================================================
+	/** 获取实例类名 */
+	public final String getClsName() {
+		return getClass().getSimpleName();
+	}
+	
+	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
-	private boolean DEBUG = false;
 	protected final void setDebug(boolean debug) {
-		DEBUG = debug;
+		mDebug.setDebug(debug);
 	}
 	
+	// 调试
 	protected final void debug(Object obj) {
-		if(DEBUG) Log.d(Tag, String.valueOf(obj));
+		mDebug.debug(obj);
 	}
-	/**
-	 * 蓝色，调试信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
 	protected final void debug(String methodName, Object obj) {
-		if(DEBUG) Log.d(Tag, methodName + " --> " + String.valueOf(obj));
+		mDebug.debug(methodName, obj);
 	}
 	protected final void debug(String methodName, Throwable tr) {
-		if(DEBUG) Log.d(Tag, methodName, tr);
+		mDebug.debug(methodName, tr);
 	}
 	
+	// 普通
 	protected final void info(Object obj) {
-		if(DEBUG) Log.i(Tag, String.valueOf(obj));
+		mDebug.info(obj);
 	}
-	/**
-	 * 绿色，正常信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
 	protected final void info(String methodName, Object obj) {
-		if(DEBUG) Log.i(Tag, methodName + " --> " + String.valueOf(obj));
+		mDebug.info(methodName, obj);
 	}
 	protected final void info(String methodName, Throwable tr) {
-		if(DEBUG) Log.i(Tag, methodName, tr);
+		mDebug.info(methodName, tr);
 	}
-	
-	protected final void verbose(Object obj) {
-		if(DEBUG) Log.v(Tag, String.valueOf(obj));
-	}
-	/**
-	 *  黑色，冗长信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void verbose(String methodName, Object obj) {
-		if(DEBUG) Log.v(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void verbose(String methodName, Throwable tr) {
-		if(DEBUG) Log.v(Tag, methodName, tr);
-	}
-	
-	protected final void error(Object obj) {
-		if(DEBUG) Log.e(Tag, String.valueOf(obj));
-	}
-	/**
-	 *  红色，错误信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void error(String methodName, Object obj) {
-		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void error(String methodName, Throwable tr) {
-		if(DEBUG) Log.e(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj), tr);
-	}
-	
-	protected final void wtf(Object obj) {
-		if(DEBUG) Log.wtf(Tag, String.valueOf(obj));
-	}
-	/**
-	 * 紫色，不应发生的信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void wtf(String methodName, Object obj) {
-		if(DEBUG) Log.wtf(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		if(DEBUG) Log.wtf(Tag, methodName, tr);
-	}
-	
 	protected void info(String listName, byte[] list){
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.format("%02x ", list[i]) + ",";
-			}
-			Log.i(Tag, listName);
-		}
+		mDebug.info(listName, list);
 	}
 	protected final void info(String methodName, String listName, byte[] list) {
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.format("%02x ", list[i]) + ",";
-			}
-			Log.i(Tag, methodName + " --> " + listName);
-		}
+		mDebug.info(methodName, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.valueOf(list[i]) + ",";
-			}
-			Log.i(Tag, listName);
-		}
+		mDebug.info(listName, list);
 	}
 	protected final void info(String methodName, String listName, int[] list) {
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.valueOf(list[i]) + ",";
-			}
-			Log.i(Tag, methodName + " --> " + listName);
-		}
+		mDebug.info(methodName, listName, list);
+	}
+	
+	// 正常
+	protected final void verbose(Object obj) {
+		mDebug.verbose(obj);
+	}
+	protected final void verbose(String methodName, Object obj) {
+		mDebug.verbose(methodName, obj);
+	}
+	protected final void verbose(String methodName, Throwable tr) {
+		mDebug.verbose(methodName, tr);
+	}
+	
+	// 错误
+	protected final void error(Object obj) {
+		mDebug.error(obj);
+	}
+	protected final void error(String methodName, Object obj) {
+		mDebug.error(methodName, obj);
+	}
+	protected final void error(String methodName, Throwable tr) {
+		mDebug.error(methodName, tr);
+	}
+	protected final void error(String methodName, Object obj, Throwable tr) {
+		mDebug.error(methodName, obj, tr);
+	}
+	
+	// 不应发生的
+	protected final void wtf(Object obj) {
+		mDebug.wtf(obj);
+	}
+	protected final void wtf(String methodName, Object obj) {
+		mDebug.wtf(methodName, obj);
+	}
+	protected final void wtf(String methodName, Throwable tr) {
+		mDebug.wtf(methodName, tr);
 	}
 	
 }

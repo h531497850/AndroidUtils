@@ -5,9 +5,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.hqs.basic.BasicDebug;
+import android.hqs.basic.BasicContext;
 
-public abstract class AbsManager extends BasicDebug{
+public abstract class AbsManager extends BasicContext{
 
 	public AbsManager(Context context) {
 		super(context);

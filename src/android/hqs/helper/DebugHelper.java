@@ -1,4 +1,4 @@
-package android.hqs.basic;
+package android.hqs.helper;
 
 import android.util.Log;
 
@@ -6,31 +6,27 @@ import android.util.Log;
  * 纯打印日志的工具类，减少类的重复代码
  * @author hqs2063594
  */
-public class BasicDebug {
+public class DebugHelper {
 	
-	private final String Tag;
-	/** 获取实例类名 */
-	public final String getClsName() {
-		return Tag;
-	}
+	private String Tag;
 	
 	/**
-	 * 初始化构造方法
-	 * @param clazz 类名，通过{@link #getClass()}获取实例的类名，非包名.类名
+	 * 创建打印日志的标签
+	 * @param clazz 类对象
 	 */
-	public BasicDebug(){
-		this.Tag = getClass().getSimpleName();
+	public final void makeTag(Class<?> clazz){
+		this.Tag = "hqs." + clazz.getSimpleName();
 	}
-	
+
 	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
 	private boolean DEBUG = false;
-	protected final void setDebug(boolean debug) {
+	public final void setDebug(boolean debug) {
 		DEBUG = debug;
 	}
 	
-	protected final void debug(Object obj) {
+	public final void debug(Object obj) {
 		if(DEBUG) Log.d(Tag, String.valueOf(obj));
 	}
 	/**
@@ -38,14 +34,14 @@ public class BasicDebug {
 	 * @param methodName 方法名
 	 * @param obj 要打印的消息
 	 */
-	protected final void debug(String methodName, Object obj) {
+	public final void debug(String methodName, Object obj) {
 		if(DEBUG) Log.d(Tag, methodName + " --> " + String.valueOf(obj));
 	}
-	protected final void debug(String methodName, Throwable tr) {
+	public final void debug(String methodName, Throwable tr) {
 		if(DEBUG) Log.d(Tag, methodName, tr);
 	}
 	
-	protected final void info(Object obj) {
+	public final void info(Object obj) {
 		if(DEBUG) Log.i(Tag, String.valueOf(obj));
 	}
 	/**
@@ -53,14 +49,14 @@ public class BasicDebug {
 	 * @param methodName 方法名
 	 * @param obj 要打印的消息
 	 */
-	protected final void info(String methodName, Object obj) {
+	public final void info(String methodName, Object obj) {
 		if(DEBUG) Log.i(Tag, methodName + " --> " + String.valueOf(obj));
 	}
-	protected final void info(String methodName, Throwable tr) {
+	public final void info(String methodName, Throwable tr) {
 		if(DEBUG) Log.i(Tag, methodName, tr);
 	}
 	
-	protected final void verbose(Object obj) {
+	public final void verbose(Object obj) {
 		if(DEBUG) Log.v(Tag, String.valueOf(obj));
 	}
 	/**
@@ -68,14 +64,14 @@ public class BasicDebug {
 	 * @param methodName 方法名
 	 * @param obj 要打印的消息
 	 */
-	protected final void verbose(String methodName, Object obj) {
+	public final void verbose(String methodName, Object obj) {
 		if(DEBUG) Log.v(Tag, methodName + " --> " + String.valueOf(obj));
 	}
-	protected final void verbose(String methodName, Throwable tr) {
+	public final void verbose(String methodName, Throwable tr) {
 		if(DEBUG) Log.v(Tag, methodName, tr);
 	}
 	
-	protected final void error(Object obj) {
+	public final void error(Object obj) {
 		if(DEBUG) Log.e(Tag, String.valueOf(obj));
 	}
 	/**
@@ -83,17 +79,17 @@ public class BasicDebug {
 	 * @param methodName 方法名
 	 * @param obj 要打印的消息
 	 */
-	protected final void error(String methodName, Object obj) {
+	public final void error(String methodName, Object obj) {
 		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj));
 	}
-	protected final void error(String methodName, Throwable tr) {
+	public final void error(String methodName, Throwable tr) {
 		if(DEBUG) Log.e(Tag, methodName, tr);
 	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
+	public final void error(String methodName, Object obj, Throwable tr) {
 		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj), tr);
 	}
 	
-	protected final void wtf(Object obj) {
+	public final void wtf(Object obj) {
 		if(DEBUG) Log.wtf(Tag, String.valueOf(obj));
 	}
 	/**
@@ -101,14 +97,14 @@ public class BasicDebug {
 	 * @param methodName 方法名
 	 * @param obj 要打印的消息
 	 */
-	protected final void wtf(String methodName, Object obj) {
+	public final void wtf(String methodName, Object obj) {
 		if(DEBUG) Log.wtf(Tag, methodName + " --> " + String.valueOf(obj));
 	}
-	protected final void wtf(String methodName, Throwable tr) {
+	public final void wtf(String methodName, Throwable tr) {
 		if(DEBUG) Log.wtf(Tag, methodName, tr);
 	}
 	
-	protected void info(String listName, byte[] list){
+	public void info(String listName, byte[] list){
 		if (DEBUG) {
 			if (list == null || list.length == 0) {
 				return;
@@ -120,7 +116,7 @@ public class BasicDebug {
 			Log.i(Tag, listName);
 		}
 	}
-	protected final void info(String methodName, String listName, byte[] list) {
+	public final void info(String methodName, String listName, byte[] list) {
 		if (DEBUG) {
 			if (list == null || list.length == 0) {
 				return;
@@ -132,7 +128,7 @@ public class BasicDebug {
 			Log.i(Tag, methodName + " --> " + listName);
 		}
 	}
-	protected void info(String listName, int[] list){
+	public void info(String listName, int[] list){
 		if (DEBUG) {
 			if (list == null || list.length == 0) {
 				return;
@@ -144,7 +140,7 @@ public class BasicDebug {
 			Log.i(Tag, listName);
 		}
 	}
-	protected final void info(String methodName, String listName, int[] list) {
+	public final void info(String methodName, String listName, int[] list) {
 		if (DEBUG) {
 			if (list == null || list.length == 0) {
 				return;

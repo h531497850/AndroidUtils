@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.hqs.helper.DebugHelper;
 import android.hqs.helper.ViewHolderHelper;
 import android.hqs.util.HandlerUtil;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,15 +26,20 @@ import android.widget.AdapterView;
 public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	
 	private final Context context;
-	private final String Tag;
-	/** 获取实例类名 */
-	public final String getClsName() {
-		return Tag;
-	}
 	
 	private final int layoutId;
-
-	protected List<T> datas = new ArrayList<T>();
+	
+	private DebugHelper mDebug;
+	
+	// 容器
+	private AdapterView<BasicAdapter<T>> mAdapterView;
+	// 是否触摸列表
+	private boolean isTouchList;
+	// 
+	private Handler mainHandler;
+	private AdapterHandler mHandler;
+	
+	private List<T> datas = new ArrayList<T>();
 
 	/** 
 	 * 用户在该方法内实现数据加载
@@ -69,21 +74,76 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		}
 		
 		this.context = context;
-		this.Tag = getClass().getSimpleName();
 		this.layoutId = layoutId;
+		
+		mDebug = new DebugHelper();
+		mDebug.makeTag(getClass());
+		
+		mHandler = new AdapterHandler();
 		
 		setData(datas);
 	}
 	
-	public void setData(ArrayList<T> datas) {
-		if (datas == null || datas.size() == 0) {
-			HandlerUtil.sendMsg(mHandler, DATA_CLEAR);
-		} else {
-			HandlerUtil.sendMsg(mHandler, DATA_SET, datas);
+/*	private LooperThread mLooperThread;
+	private class LooperThread extends Thread {
+		public Handler mHandler;
+
+		@Override
+		public void run() {
+			Looper.prepare();// 给线程创建一个消息循环
+			mHandler = new Handler(new Handler.Callback() {
+				@Override
+				public boolean handleMessage(Message msg) {
+					if (msg.what == NOTIFY) {
+						debug("刷新列表数据！");
+						notifyData();
+						return true;
+					}
+					return false;
+				}
+			});
+			Looper.loop();// 使消息循环起作用，从消息队列里取消息，处理消息
 		}
 	}
-	public final List<T> getDatas() {
-		return datas;
+	*/
+	
+	public final class AdapterHandler extends Handler {
+		public static final byte DATA_NOTIFY = 0x11;
+		public static final byte DATA_SET = 0x12;
+		public static final byte DATA_CLEAR = 0x13;
+		
+		public static final byte LIST_VIEW_SROLL = 0x20;
+		
+		public AdapterHandler() {
+			super(Looper.getMainLooper());
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case DATA_NOTIFY:
+				notifyData();
+				break;
+			case DATA_SET:
+				ArrayList<T> list = (ArrayList<T>) msg.getData().get("data");
+				datas = (List<T>) list.clone();
+				notifyData();
+				break;
+			case DATA_CLEAR:
+				datas.clear();
+				notifyData();
+				break;
+			case LIST_VIEW_SROLL:
+				int position = msg.arg1;
+				if (mAdapterView != null && isDataItem(position)) {
+					mAdapterView.setSelection(position);
+				}
+				break;
+			default:
+				break;
+			}
+		}
 	}
 	
 	@Override
@@ -122,52 +182,13 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	
 	@Override
 	public void notifyDataSetChanged() {
-		mHandler.sendEmptyMessage(DATA_NOTIFY);
-	}
-	
-	public void destroy(){
-		HandlerUtil.sendMsg(mHandler, DATA_CLEAR);
+		mHandler.sendEmptyMessage(AdapterHandler.DATA_NOTIFY);
 	}
 	
 	private final void notifyData() {
 		super.notifyDataSetChanged();
 	}
 
-	private final byte DATA_NOTIFY = 0x11;
-	private final byte DATA_SET = 0x12;
-	private final byte DATA_CLEAR = 0x13;
-	
-	protected final byte LIST_VIEW_SROLL = 0x20;
-	
-	protected final Handler mHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
-		@SuppressWarnings("unchecked")
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-			case DATA_NOTIFY:
-				notifyData();
-				return true;
-			case DATA_SET:
-				ArrayList<T> list = (ArrayList<T>) msg.getData().get("data");
-				datas = (List<T>) list.clone();
-				notifyData();
-				return true;
-			case DATA_CLEAR:
-				datas.clear();
-				notifyData();
-				return true;
-			case LIST_VIEW_SROLL:
-				int position = msg.arg1;
-				if (mAdapterView != null && isDataItem(position)) {
-					mAdapterView.setSelection(position);
-				}
-				return true;
-			default:
-				return false;
-			}
-		}
-	});
-	
 	/**
 	 * 给定索引项在AdapterView中是否可见
 	 * @param index
@@ -183,30 +204,37 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		return false;
 	}
 	
-/*	private LooperThread mLooperThread;
-	private class LooperThread extends Thread {
-		public Handler mHandler;
-
-		@Override
-		public void run() {
-			Looper.prepare();// 给线程创建一个消息循环
-			mHandler = new Handler(new Handler.Callback() {
-				@Override
-				public boolean handleMessage(Message msg) {
-					if (msg.what == NOTIFY) {
-						debug("刷新列表数据！");
-						notifyData();
-						return true;
-					}
-					return false;
-				}
-			});
-			Looper.loop();// 使消息循环起作用，从消息队列里取消息，处理消息
+	// ========================================================================================================
+	// ==================================== TODO 下面是公开的方法 ============================================
+	// ========================================================================================================
+	/** 获取实例类名 */
+	public final String getClsName() {
+		return getClass().getSimpleName();
+	}
+	
+	/** 在界面的生命周期结束时调用该方法清理内存 */
+	public void destroy(){
+		mHandler.sendEmptyMessage(AdapterHandler.DATA_CLEAR);
+	}
+	
+	/**
+	 * 初始化或数据变化时调用
+	 * @param datas 在没有数据的时候清空列表，有的时候刷新
+	 */
+	public final void setData(ArrayList<T> datas) {
+		if (datas == null || datas.size() == 0) {
+			mHandler.sendEmptyMessage(AdapterHandler.DATA_CLEAR);
+		} else {
+			HandlerUtil.sendMsg(mHandler, AdapterHandler.DATA_SET, datas);
 		}
 	}
-	*/
-	
-	private AdapterView<BasicAdapter<T>> mAdapterView;
+	/**
+	 * 获取当前列表的实际数据
+	 */
+	public final List<T> getDatas() {
+		return datas;
+	}
+
 	public final AdapterView<BasicAdapter<T>> getAdapterView() {
 		return mAdapterView;
 	}
@@ -214,7 +242,13 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		this.mAdapterView = view;
 	}
 	
-	private Handler mainHandler;
+	public final void setTouch(boolean touch) {
+		this.isTouchList = touch;
+	}
+	public final boolean isTouchList() {
+		return isTouchList;
+	}
+	
 	/**
 	 * 将主Handler传入，方便将适配器内的数据传出
 	 * @param handler
@@ -225,148 +259,82 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	public final Handler getMainHandler() {
 		return mainHandler;
 	}
-
-	private boolean isTouchList;
-	public final void setTouch(boolean touch) {
-		this.isTouchList = touch;
-	}
-	public final boolean isTouchList() {
-		return isTouchList;
-	}
-
+	
 	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
-	private boolean DEBUG = false;
 	protected final void setDebug(boolean debug) {
-		DEBUG = debug;
+		mDebug.setDebug(debug);
 	}
 	
+	// 调试
 	protected final void debug(Object obj) {
-		if(DEBUG) Log.d(Tag, String.valueOf(obj));
+		mDebug.debug(obj);
 	}
-	/**
-	 * 蓝色，调试信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
 	protected final void debug(String methodName, Object obj) {
-		if(DEBUG) Log.d(Tag, methodName + " --> " + String.valueOf(obj));
+		mDebug.debug(methodName, obj);
 	}
 	protected final void debug(String methodName, Throwable tr) {
-		if(DEBUG) Log.d(Tag, methodName, tr);
+		mDebug.debug(methodName, tr);
 	}
 	
+	// 普通
 	protected final void info(Object obj) {
-		if(DEBUG) Log.i(Tag, String.valueOf(obj));
+		mDebug.info(obj);
 	}
-	/**
-	 * 绿色，正常信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
 	protected final void info(String methodName, Object obj) {
-		if(DEBUG) Log.i(Tag, methodName + " --> " + String.valueOf(obj));
+		mDebug.info(methodName, obj);
 	}
 	protected final void info(String methodName, Throwable tr) {
-		if(DEBUG) Log.i(Tag, methodName, tr);
+		mDebug.info(methodName, tr);
 	}
-	
-	protected final void verbose(Object obj) {
-		if(DEBUG) Log.v(Tag, String.valueOf(obj));
-	}
-	/**
-	 *  黑色，冗长信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void verbose(String methodName, Object obj) {
-		if(DEBUG) Log.v(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void verbose(String methodName, Throwable tr) {
-		if(DEBUG) Log.v(Tag, methodName, tr);
-	}
-	
-	protected final void error(Object obj) {
-		if(DEBUG) Log.e(Tag, String.valueOf(obj));
-	}
-	/**
-	 *  红色，错误信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void error(String methodName, Object obj) {
-		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void error(String methodName, Throwable tr) {
-		if(DEBUG) Log.e(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		if(DEBUG) Log.e(Tag, methodName + " --> " + String.valueOf(obj), tr);
-	}
-	
-	protected final void wtf(Object obj) {
-		if(DEBUG) Log.wtf(Tag, String.valueOf(obj));
-	}
-	/**
-	 * 紫色，不应发生的信息
-	 * @param methodName 方法名
-	 * @param obj 要打印的消息
-	 */
-	protected final void wtf(String methodName, Object obj) {
-		if(DEBUG) Log.wtf(Tag, methodName + " --> " + String.valueOf(obj));
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		if(DEBUG) Log.wtf(Tag, methodName, tr);
-	}
-	
 	protected void info(String listName, byte[] list){
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.format("%02x ", list[i]) + ",";
-			}
-			Log.i(Tag, listName);
-		}
+		mDebug.info(listName, list);
 	}
 	protected final void info(String methodName, String listName, byte[] list) {
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.format("%02x ", list[i]) + ",";
-			}
-			Log.i(Tag, methodName + " --> " + listName);
-		}
+		mDebug.info(methodName, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.valueOf(list[i]) + ",";
-			}
-			Log.i(Tag, listName);
-		}
+		mDebug.info(listName, list);
 	}
 	protected final void info(String methodName, String listName, int[] list) {
-		if (DEBUG) {
-			if (list == null || list.length == 0) {
-				return;
-			}
-			listName = new String(listName + ", " + list.length + "   :");
-			for(int i=0; i < list.length; ++i) {
-				listName += String.valueOf(list[i]) + ",";
-			}
-			Log.i(Tag, methodName + " --> " + listName);
-		}
+		mDebug.info(methodName, listName, list);
+	}
+	
+	// 正常
+	protected final void verbose(Object obj) {
+		mDebug.verbose(obj);
+	}
+	protected final void verbose(String methodName, Object obj) {
+		mDebug.verbose(methodName, obj);
+	}
+	protected final void verbose(String methodName, Throwable tr) {
+		mDebug.verbose(methodName, tr);
+	}
+	
+	// 错误
+	protected final void error(Object obj) {
+		mDebug.error(obj);
+	}
+	protected final void error(String methodName, Object obj) {
+		mDebug.error(methodName, obj);
+	}
+	protected final void error(String methodName, Throwable tr) {
+		mDebug.error(methodName, tr);
+	}
+	protected final void error(String methodName, Object obj, Throwable tr) {
+		mDebug.error(methodName, obj, tr);
+	}
+	
+	// 不应发生的
+	protected final void wtf(Object obj) {
+		mDebug.wtf(obj);
+	}
+	protected final void wtf(String methodName, Object obj) {
+		mDebug.wtf(methodName, obj);
+	}
+	protected final void wtf(String methodName, Throwable tr) {
+		mDebug.wtf(methodName, tr);
 	}
 	
 }

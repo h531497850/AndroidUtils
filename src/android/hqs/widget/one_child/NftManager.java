@@ -2,7 +2,7 @@ package android.hqs.widget.one_child;
 
 import android.app.Notification;
 import android.content.Context;
-import android.hqs.helper.ManagerHelper;
+import android.hqs.basic.BasicContext;
 
 /**
  * 通知显示管理
@@ -12,7 +12,7 @@ import android.hqs.helper.ManagerHelper;
  * @version 1.0
  * @Copyright © 2016 广东维沃移动通信有限公司. All rights reserved.
  */
-public class NftManager extends ManagerHelper{
+public class NftManager extends BasicContext{
 	
 	/** 如果用户不设置id，那么其作为本通知的一个默认id */
 	private final int id = 4531;

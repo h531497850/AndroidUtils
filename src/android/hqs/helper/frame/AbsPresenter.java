@@ -2,7 +2,7 @@ package android.hqs.helper.frame;
 
 import android.app.Activity;
 import android.content.Context;
-import android.hqs.basic.BasicDebug;
+import android.hqs.basic.BasicContext;
 
 /**
  * 不绑定服务的UI逻辑处理器
@@ -10,7 +10,7 @@ import android.hqs.basic.BasicDebug;
  *
  * @param <T> view
  */
-public abstract class AbsPresenter<T> extends BasicDebug {
+public abstract class AbsPresenter<T> extends BasicContext {
 	
 	/**
 	 * UI视图，通过该接口调用界面的各种方法
