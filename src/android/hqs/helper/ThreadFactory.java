@@ -1,8 +1,13 @@
 package android.hqs.helper;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 线程池工厂
@@ -49,5 +54,42 @@ public class ThreadFactory {
 	public static void shutAsyn(){
 		mAsynThread.shutdown();
 	}
+	
+	/**
+	 * 核心线程数，核心线程会一直存活，即使没有任务需要处理。当线程数小于核心线程数时，即使现有的线程空闲，
+	 * 线程池也会优先创建新线程来处理任务，而不是直接交给现有的线程处理。
+	 * 核心线程在allowCoreThreadTimeout被设置为true时会超时退出，默认情况下不会退出。
+	 */
+	private static final int CORE_POOL_SIZE = 5;
+	/**
+	 * 当线程数大于或等于核心线程，且任务队列已满时，线程池会创建新的线程，直到线程数量达到maximumPoolSize。
+	 * 如果线程数已等于maximumPoolSize，且任务队列已满，则已超出线程池的处理能力，线程池会拒绝处理任务而抛出异常。
+	 */
+	private static final int MAXIMUM_POOL_SIZE = 128;
+	/**
+	 * 当线程空闲时间达到keepAliveTime，该线程会退出，直到线程数量等于corePoolSize。
+	 * 如果allowCoreThreadTimeout(是否允许核心线程空闲退出，默认值为false)设置为true，则所有线程均会退出直到线程数量为0。
+	 */
+	private static final int KEEP_ALIVE_TIME = 1;
+	/**
+	 * 表示存放任务的队列（存放需要被线程池执行的线程队列）。 
+	 */
+	private static final BlockingQueue<Runnable> sPoolWorkQueue = new LinkedBlockingQueue<Runnable>(10);
+
+	/**
+	 * 最多只有CORE_POOL_SIZE个线程同时运行，多于的等待或丢弃
+	 * 当线程数小于核心线程数时，创建线程。
+	 * 当线程数大于等于核心线程数，且任务队列未满时，将任务放入任务队列。
+	 * 当线程数大于等于核心线程数，且任务队列已满:
+	 * 		若线程数小于最大线程数，创建线程
+	 * 		若线程数等于最大线程数，抛出异常，拒绝任务
+	 * 
+	 * TimeUnit.SECONDS KEEP_ALIVE_TIME的单位为秒
+	 * 
+	 * handler拒绝策略（添加任务失败后如何处理该任务）. 
+	 */
+	public static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
+			CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,
+			sPoolWorkQueue, new ThreadPoolExecutor.DiscardOldestPolicy());
 	
 }

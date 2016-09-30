@@ -2,8 +2,62 @@ package android.hqs.tool;
 
 import android.util.Log;
 
-public class LogcatCmd {
+/**
+ * 1、tee使用 功能说明：读取标准输入的数据，并将其内容输出成文件。 
+ * 语 法：tee [-ai][--help][--version][文件...]
+ * 补充说明：tee指令会从标准输入设备读取数据，将其内容输出到标准输出设备，同时保存成文件。 
+ * 参 数：
+ *  -a或--append 附加到既有文件的后面，而非覆盖它。 
+ *  -i-i或--ignore-interrupts 忽略中断信号。 
+ *  --help 在线帮助。 
+ *  --version 显示版本信息。
+ * 
+ * 2、grep使用 
+ * 3、Logcat、tee和grep结合使用
+ * 三者结合到一起可以实现：log日志同时输出到终端和本地文件，对于输出到终端的log按照grep的要求进行过滤显示。 
+ * 比如：sudo ./adb logcat -v time | tee /home/Linux/main.txt |grep 'accept'
+ * ——输入Android应用层日志到屏幕和main.txt文件，同时过滤屏幕的日志显示包含字符串“accept”的行，以关注自己需要的信息。
+ * 
+ * 4、优先级是下面的字符，顺序是从低到高：
+ *  V — 明细 verbose(最低优先级) 
+ *  D — 调试 debug 
+ *  I — 信息 info 
+ *  W — 警告 warn 
+ *  E — 错误 error 
+ *  F — 严重错误 fatal 
+ *  S — 无记载 silent(最高优先级)
+ *  
+ * @author 胡青松
+ */
+public class LogcatTool {
 	
+	/**
+	 * 调试开关统一在这里设置，在每个类里单独设置，类一多不方便管理
+	 */
+	public static final boolean DEBUG = true;
+	
+	/**
+	 * 统一创建日志标签：前缀“hqs.”，这样好帅选日志，不用在用adb loagcat获取日志是每个类都加一个，类一多，很麻烦，还容易出错。
+	 * 
+	 * adb logcat     //显示全部日志
+     * adb logcat > E:\A_Projects\log\test.log //将日志保存到文件test.log
+	 *
+	 * 根据tag标记和级别过滤日志输出：
+	 * 仅输出标记为“ActivityManager”且优先级大于等于“Info”和标记为“PowerManagerService”并且优先级大于等于“Debug”的日志：
+	 * adb logcat ActivityManager:I PowerManagerService:D *:S
+	 * 注：*:S用于设置所有标记的日志优先级为S，这样可以确保仅输出符合条件的日志。
+	 * 
+	 * @Desription linux平台：adb logcat | grep "hqs."
+	 * 			   Windows平台：adb logcat -v time | findstr "hqs."
+	 * 
+	 * @param clazz
+	 *            你的类对象
+	 * @return hqs.类名
+	 */
+	public static final String makeTag(Class<?> clazz){
+		return "hqs." + clazz.getSimpleName();
+	}
+
 	// 命令：LogCat [options] [filterspecs]
 	public static final String SELECT = "logcat";
 	
@@ -97,15 +151,6 @@ public class LogcatCmd {
 	 * 过滤器的格式是一个这样的串： 
 	 * <tag>[:priority] 其中 <tag> 表示log的component， tag (或者使用 *表示所有) ， priority 如下所示: 
 	 * tag 是 eclipse 中 logcat 图形界面中 Tag 的内容(或者有 *表示全部)，它之后的冒号(:)后面跟优先级： 
-	 * 日志类型标识符(优先级由低到高排列): 
-	 * 2. V — Verbose 详细的 <- 最低优先权 
-	 * 3. D — Debug 调试 
-	 * 4. I — Info 消息 
-	 * 5. W — Warn 警告 
-	 * 6. E — Error 错误 
-	 * 7. A = Assert 维护
-	 * 8. F — Fatal 致命的 
-	 * 9. S — Silent 无声的 <- 最高优先权
 	 * '*' means '*:d' and <tag> by itself means <tag>:v
 	 */
 	public static final int fatal = 8;
@@ -130,9 +175,9 @@ public class LogcatCmd {
 			return "error";
 		case Log.ASSERT:
 			return "assert";
-		case LogcatCmd.fatal:
+		case LogcatTool.fatal:
 			return "fatal";
-		case LogcatCmd.silent:
+		case LogcatTool.silent:
 			return "silent";
 		default:
 			return null;
@@ -158,30 +203,13 @@ public class LogcatCmd {
 			return "e";
 		case Log.ASSERT:
 			return "a";
-		case LogcatCmd.fatal:
+		case LogcatTool.fatal:
 			return "f";
-		case LogcatCmd.silent:
+		case LogcatTool.silent:
 			return "s";
 		default:
 			return null;
 		}
 	}
-	
-	/*
-	 * 2、tee使用 功能说明：读取标准输入的数据，并将其内容输出成文件。 
-	 * 语 法：tee [-ai][--help][--version][文件...]
-	 * 补充说明：tee指令会从标准输入设备读取数据，将其内容输出到标准输出设备，同时保存成文件。 
-	 * 参 数：
-	 *  -a或--append 附加到既有文件的后面，而非覆盖它。 
-	 *  -i-i或--ignore-interrupts 忽略中断信号。 
-	 *  --help 在线帮助。 
-	 *  --version 显示版本信息。
-	 * 
-	 * 3、grep使用 
-	 * 4、Logcat、tee和grep结合使用
-	 * 三者结合到一起可以实现：log日志同时输出到终端和本地文件，对于输出到终端的log按照grep的要求进行过滤显示。 
-	 * 比如：sudo ./adb logcat -v time | tee /home/Linux/main.txt |grep 'accept'
-	 * ——输入Android应用层日志到屏幕和main.txt文件，同时过滤屏幕的日志显示包含字符串“accept”的行，以关注自己需要的信息。
-	 */
 
 }

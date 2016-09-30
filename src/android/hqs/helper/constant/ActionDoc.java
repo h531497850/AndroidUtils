@@ -1,11 +1,21 @@
-package android.hqs.helper;
+package android.hqs.helper.constant;
 
 import android.content.Intent;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.hardware.Camera;;
 
+/**
+ * Intent Action信息
+ * @author 胡青松
+ */
 public class ActionDoc {
+	
+	/**
+	 * 系统启动完成会发出一个Standard Broadcast Action，且只会发出一次。
+	 * @see Intent.ACTION_BOOT_COMPLETED
+	 */
+	public final String BOOT_COMPLETED = "android.intent.action.BOOT_COMPLETED";
 	
 	/**
 	 * activity，启动一个电话,{@link Intent#ACTION_CALL}
