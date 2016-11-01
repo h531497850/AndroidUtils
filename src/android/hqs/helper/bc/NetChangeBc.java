@@ -2,7 +2,6 @@ package android.hqs.helper.bc;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.hqs.helper.DynamicBroadcast;
 import android.net.ConnectivityManager;
 
 /**

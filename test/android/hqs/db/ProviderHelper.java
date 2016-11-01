@@ -30,12 +30,12 @@ public class ProviderHelper extends BasicProvider {
 	}
 	
 	/**
-	 * Android开机后，ContentProvider被第一次访问时被创建，创建后调用该方法。
+	 * Android开机后，ContentProvider在第一次访问时被创建，创建后调用该方法。
 	 */
 	@Override
 	public boolean onCreate() {
 		// 初始化数据库
-		mDb = new ProviderDB(getContext());
+		mDb = ProviderDB.getInstance(getContext());
 		return true;
 	}
 

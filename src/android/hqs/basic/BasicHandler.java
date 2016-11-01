@@ -1,17 +1,22 @@
 package android.hqs.basic;
 
-import android.content.BroadcastReceiver;
 import android.hqs.tool.LogcatTool;
+import android.os.Handler;
+import android.os.Looper;
 
-public abstract class BasicBroadcast extends BroadcastReceiver {
+public abstract class BasicHandler extends Handler {
 	private final String Tag = LogcatTool.makeTag(getClass());
+	
+	public BasicHandler(Callback callback) {
+		super(callback);
+	}
 
-	// ========================================================================================================
-	// ==================================== TODO 下面是公开的方法 ===============================================
-	// ========================================================================================================
-	/** 获取实例类名 */
-	public final String getClsName() {
-		return getClass().getSimpleName();
+	public BasicHandler(Looper looper) {
+		super(looper);
+	}
+
+	public BasicHandler(Looper looper, Callback callback) {
+		super(looper, callback);
 	}
 	
 	// ========================================================================================================
@@ -86,5 +91,5 @@ public abstract class BasicBroadcast extends BroadcastReceiver {
 	protected final void wtf(String methodName, Throwable tr) {
 		LogcatTool.wtf(Tag, methodName, tr);
 	}
-	
+
 }

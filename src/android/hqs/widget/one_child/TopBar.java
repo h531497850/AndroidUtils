@@ -65,24 +65,24 @@ public class TopBar extends RelativeLayout implements View.OnClickListener {
 		titleText = ta.getString(R.styleable.TopBar_title_text);
 		titleTextSize = DimenUtil.dipToPx(context, ta.getDimension(
 				R.styleable.TopBar_title_text_size, DEFAULT_TEXT_SIZE));
-		titleTextColor = ta.getColor(R.styleable.TopBar_title_text_color, ColorConstant.pale_blue);
+		titleTextColor = ta.getColor(R.styleable.TopBar_title_text_color, ColorConstant.PALE_BLUE);
 		
 		leftText = ta.getString(R.styleable.TopBar_left_text);
 		leftTextSize = DimenUtil.dipToPx(context, ta.getDimension(
 				R.styleable.TopBar_left_text_size, DEFAULT_TEXT_SIZE));
-		leftTextColor = ta.getColor(R.styleable.TopBar_left_text_color, ColorConstant.pale_blue);
+		leftTextColor = ta.getColor(R.styleable.TopBar_left_text_color, ColorConstant.PALE_BLUE);
 		leftBackground = ta.getDrawable(R.styleable.TopBar_left_background);
 		
 		rightText = ta.getString(R.styleable.TopBar_right_text);
 		rightTextSize = DimenUtil.dipToPx(context, ta.getDimension(
 				R.styleable.TopBar_right_text_size, DEFAULT_TEXT_SIZE));
-		rightTextColor = ta.getColor(R.styleable.TopBar_right_text_color, ColorConstant.pale_blue);
+		rightTextColor = ta.getColor(R.styleable.TopBar_right_text_color, ColorConstant.PALE_BLUE);
 		rightBackground = ta.getDrawable(R.styleable.TopBar_right_background);
 		
 		ta.recycle();
 		
 		if (getBackground() == null) {
-			setBackgroundColor(ColorConstant.gray);
+			setBackgroundColor(ColorConstant.GRAY);
 		}
 		
 		initView(context);
@@ -111,7 +111,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener {
 		left.setTextSize(leftTextSize);
 		left.setTextColor(leftTextColor);
 		if (leftBackground == null) {
-			left.setBackgroundColor(ColorConstant.orange);
+			left.setBackgroundColor(ColorConstant.ORANGE);
 		} else {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 				left.setBackground(leftBackground);
@@ -131,7 +131,7 @@ public class TopBar extends RelativeLayout implements View.OnClickListener {
 		right.setTextSize(rightTextSize);
 		right.setTextColor(rightTextColor);
 		if (rightBackground == null) {
-			right.setBackgroundColor(ColorConstant.orange);
+			right.setBackgroundColor(ColorConstant.ORANGE);
 		} else {
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 				right.setBackground(rightBackground);

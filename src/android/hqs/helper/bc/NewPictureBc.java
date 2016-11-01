@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.hardware.Camera;
-import android.hqs.helper.DynamicBroadcast;
 
 /**
  * 拍照 --> 广播接收器

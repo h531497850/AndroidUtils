@@ -31,13 +31,22 @@ import android.util.Log;
  */
 public class LogcatTool {
 	
+	public static final boolean VERBOSE = false;
 	/**
 	 * 调试开关统一在这里设置，在每个类里单独设置，类一多不方便管理
 	 */
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
+	public static final boolean INFO = false;
+	public static final boolean ERROR = false;
+	public static final boolean WTF = false;
 	
+	// 是否打开调试开关，user(用户不打开)，eng(打开)
+//  private static final boolean IS_ENG = Build.TYPE.equals("eng");
+//  private static final boolean IS_LOG_CTRL_OPEN = SystemProperties.get("persist.sys.log.ctrl", "no").equals("yes");
+//  private static final boolean DEBUG = false || IS_LOG_CTRL_OPEN || IS_ENG;
+
 	/**
-	 * 统一创建日志标签：前缀“hqs.”，这样好帅选日志，不用在用adb loagcat获取日志是每个类都加一个，类一多，很麻烦，还容易出错。
+	 * 统一创建日志标签：前缀“Logcat.”，这样好帅选日志，不用在用adb loagcat获取日志是每个类都加一个，类一多，很麻烦，还容易出错。
 	 * 
 	 * adb logcat     //显示全部日志
      * adb logcat > E:\A_Projects\log\test.log //将日志保存到文件test.log
@@ -47,15 +56,15 @@ public class LogcatTool {
 	 * adb logcat ActivityManager:I PowerManagerService:D *:S
 	 * 注：*:S用于设置所有标记的日志优先级为S，这样可以确保仅输出符合条件的日志。
 	 * 
-	 * @Desription linux平台：adb logcat | grep "hqs."
-	 * 			   Windows平台：adb logcat -v time | findstr "hqs."
+	 * @Desription linux平台：adb logcat | grep "Logcat."
+	 * 			   Windows平台：adb logcat -v time | findstr "Logcat."
 	 * 
 	 * @param clazz
 	 *            你的类对象
-	 * @return hqs.类名
+	 * @return DebugHelper.类名
 	 */
 	public static final String makeTag(Class<?> clazz){
-		return "hqs." + clazz.getSimpleName();
+		return "Logcat." + clazz.getSimpleName();
 	}
 
 	// 命令：LogCat [options] [filterspecs]
@@ -209,6 +218,113 @@ public class LogcatTool {
 			return "s";
 		default:
 			return null;
+		}
+	}
+	
+	/**蓝色，调试信息*/
+	public static final void debug(String tag, Object obj) {
+		if(DEBUG) Log.d(tag, String.valueOf(obj));
+	}
+	public static final void debug(String tag, String methodName, Object obj) {
+		if(DEBUG) Log.d(tag, "[method --> " + methodName + "]\t\t" + String.valueOf(obj));
+	}
+	public static final void debug(String tag, String methodName, Throwable tr) {
+		if(DEBUG) Log.d(tag, "[method --> " + methodName + "]\t\t", tr);
+	}
+	
+	/** 绿色，正常信息 */
+	public static final void info(String tag, Object obj) {
+		if(INFO) Log.i(tag, String.valueOf(obj));
+	}
+	public static final void info(String tag, String methodName, Object obj) {
+		if(INFO) Log.i(tag, "[method --> " + methodName + "]\t\t" + String.valueOf(obj));
+	}
+	public static final void info(String tag, String methodName, Throwable tr) {
+		if(INFO) Log.i(tag, "[method --> " + methodName + "]\t\t", tr);
+	}
+	
+	/**黑色，冗长信息*/
+	public static final void verbose(String tag, Object obj) {
+		if(VERBOSE) Log.v(tag, String.valueOf(obj));
+	}
+	public static final void verbose(String tag, String methodName, Object obj) {
+		if(VERBOSE) Log.v(tag, "[method --> " + methodName + "]\t\t" + String.valueOf(obj));
+	}
+	public static final void verbose(String tag, String methodName, Throwable tr) {
+		if(VERBOSE) Log.v(tag, "[method --> " + methodName + "]\t\t", tr);
+	}
+	
+	/**红色，错误信息*/
+	public static final void error(String tag, Object obj) {
+		if(ERROR) Log.e(tag, String.valueOf(obj));
+	}
+	public static final void error(String tag, String methodName, Object obj) {
+		if(ERROR) Log.e(tag, "[method --> " + methodName + "]\t\t" + String.valueOf(obj));
+	}
+	public static final void error(String tag, String methodName, Throwable tr) {
+		if(ERROR) Log.e(tag, "[method --> " + methodName + "]\t\t", tr);
+	}
+	public static final void error(String tag, String methodName, Object obj, Throwable tr) {
+		if(ERROR) Log.e(tag, "[method --> " + methodName + "]\t\t" + String.valueOf(obj), tr);
+	}
+	
+	/**紫色，不应发生的信息*/
+	public static final void wtf(String tag, Object obj) {
+		if(WTF) Log.wtf(tag, String.valueOf(obj));
+	}
+	public static final void wtf(String tag, String methodName, Object obj) {
+		if(WTF) Log.wtf(tag, "[method --> " + methodName + "]\t\t" + String.valueOf(obj));
+	}
+	public static final void wtf(String tag, String methodName, Throwable tr) {
+		if(WTF) Log.wtf(tag, "[method --> " + methodName + "]\t\t", tr);
+	}
+	
+	public static void info(String tag, String listName, byte[] list){
+		if (INFO) {
+			if (list == null || list.length == 0) {
+				return;
+			}
+			listName = new String(listName + ", " + list.length + "   :");
+			for(int i=0; i < list.length; ++i) {
+				listName += String.format("%02x ", list[i]) + ",";
+			}
+			Log.i(tag, listName);
+		}
+	}
+	public static final void info(String tag, String methodName, String listName, byte[] list) {
+		if (INFO) {
+			if (list == null || list.length == 0) {
+				return;
+			}
+			listName = new String(listName + ", " + list.length + "   :");
+			for(int i=0; i < list.length; ++i) {
+				listName += String.format("%02x ", list[i]) + ",";
+			}
+			Log.i(tag, methodName + " --> " + listName);
+		}
+	}
+	public static void info(String tag, String listName, int[] list){
+		if (INFO) {
+			if (list == null || list.length == 0) {
+				return;
+			}
+			listName = new String(listName + ", " + list.length + "   :");
+			for(int i=0; i < list.length; ++i) {
+				listName += String.valueOf(list[i]) + ",";
+			}
+			Log.i(tag, listName);
+		}
+	}
+	public static final void info(String tag, String methodName, String listName, int[] list) {
+		if (INFO) {
+			if (list == null || list.length == 0) {
+				return;
+			}
+			listName = new String(listName + ", " + list.length + "   :");
+			for(int i=0; i < list.length; ++i) {
+				listName += String.valueOf(list[i]) + ",";
+			}
+			Log.i(tag, methodName + " --> " + listName);
 		}
 	}
 

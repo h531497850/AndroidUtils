@@ -11,11 +11,11 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import android.hqs.tool.LogcatTool;
 import android.util.Log;
 
 public class XmlUtil {
-	
-	private static final String TAG = "XmlUtil";
+	private static final String TAG = LogcatTool.makeTag(XmlUtil.class);
 	
 	public static final void decode(String fileName){
 		File f=new File("/data/bbkcore/config_daemon.xml");
@@ -29,9 +29,6 @@ public class XmlUtil {
 				String node = doc.getElementsByTagName("class").item(i).getFirstChild().getNodeValue();
 				Log.d(TAG, node);
 			}
-			
-			
-			
 		} catch (ParserConfigurationException e) {
 			Log.e(TAG, "decode config file fail.", e);
 		} catch (SAXException e) {
@@ -41,7 +38,6 @@ public class XmlUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 	}
 
 }

@@ -9,12 +9,14 @@ import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 
 import android.content.Context;
+import android.hqs.tool.LogcatTool;
 import android.hqs.util.FormatUtil;
 import android.os.Environment;
 import android.util.Log;
 
 public class FlashQuit implements UncaughtExceptionHandler {
-	private static final String TAG = FlashQuit.class.getSimpleName();
+	private static final String TAG = LogcatTool.makeTag(FlashQuit.class);
+
 	private static final String SAVE_PATH;
 	private static FlashQuit HANDLER;
 	private final String mPackageName;

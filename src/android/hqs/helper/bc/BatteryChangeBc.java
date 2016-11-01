@@ -3,7 +3,6 @@ package android.hqs.helper.bc;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hqs.helper.DynamicBroadcast;
 
 /**
  * 电量变化 --> 广播接收器

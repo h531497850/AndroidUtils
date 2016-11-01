@@ -1,4 +1,4 @@
-package android.hqs.helper;
+package android.hqs.helper.bc;
 
 import android.content.Context;
 import android.hqs.basic.BasicBroadcast;
@@ -9,9 +9,7 @@ import android.hqs.basic.BasicBroadcast;
  */
 public abstract class DynamicBroadcast extends BasicBroadcast {
 
-	/**
-	 * 注册广播
-	 */
+	/** 注册广播 */
 	public abstract void register(Context context);
 	
 }

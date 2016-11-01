@@ -32,7 +32,6 @@ public class NetTool {
 	 * 网络是否有效
 	 */
 	public static boolean isVaild(Context context, String type) {
-		boolean isValid = false;
 		ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (cm == null) {
 			return false;
@@ -41,13 +40,13 @@ public class NetTool {
 		if (null != networkInfo && networkInfo.isAvailable() && networkInfo.isConnectedOrConnecting()) {
 			if (!TextUtils.isEmpty(type)) {
 				if (type.equalsIgnoreCase((networkInfo.getTypeName()))) {
-					isValid = true;
+					return true;
 				}
 			} else {
-				isValid = true;
+				return true;
 			}
 		}
-		return isValid;
+		return false;
 	}
 	
 	public static String getType(Context context){
@@ -57,6 +56,28 @@ public class NetTool {
 			return networkInfo.getTypeName();
 		}				
 		return null;
+	}
+	
+	public static String getHttptype(Context context) {
+		ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = conMan.getActiveNetworkInfo();
+		if (networkInfo == null) {
+			return null;
+		} else {
+			if (networkInfo.getState() != NetworkInfo.State.CONNECTED) {
+				return null;
+			}
+			switch (networkInfo.getType()) {
+			case ConnectivityManager.TYPE_MOBILE:
+				StringBuffer netType = new StringBuffer(networkInfo.getExtraInfo());
+				netType.append("_").append(networkInfo.getSubtypeName());
+				return netType.toString();
+			case ConnectivityManager.TYPE_WIFI:
+				return networkInfo.getTypeName();
+			default:
+				return null;
+			}
+		}
 	}
 
 }

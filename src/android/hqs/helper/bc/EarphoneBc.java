@@ -3,7 +3,6 @@ package android.hqs.helper.bc;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hqs.helper.DynamicBroadcast;
 
 /**
  * 耳机(headset/headphone/earphone)插入或拔出 --> 广播接收器

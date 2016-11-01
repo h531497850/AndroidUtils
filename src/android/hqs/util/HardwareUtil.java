@@ -2,6 +2,7 @@ package android.hqs.util;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.hqs.tool.CmdExecute;
 import android.os.Build;
 import android.telephony.TelephonyManager;
@@ -23,30 +24,32 @@ public class HardwareUtil {
 	 * @return
 	 */
 	public static String fetchTelStatusInfo(Context context) {
-		String result = null;
+		StringBuffer result = new StringBuffer();
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-		String str = " ";
+		Configuration config = context.getResources().getConfiguration();
 		// 获取DeviceId信息
-		str += "DeviceId(IMEI) = " + tm.getDeviceId() + "\n";
+		result.append("DeviceId(IMEI) = " + tm.getDeviceId() + "\n")
 		// 获取设备的软件版本信息等
-		str += "DeviceSoftwareVersion = " + tm.getDeviceSoftwareVersion() + "\n";
-		// TODO: Do something ...
-		int mcc = context.getResources().getConfiguration().mcc;
-		int mnc = context.getResources().getConfiguration().mnc;
-		str += "IMSI MCC (Mobile Country Code): " + String.valueOf(mcc) + "\n";
-		str += "IMSI MNC (Mobile Network Code): " + String.valueOf(mnc) + "\n";
-		result = str;
-		return result;
+		.append("DeviceSoftwareVersion = " + tm.getDeviceSoftwareVersion() + "\n")
+		.append("IMSI MCC (Mobile Country Code): " + String.valueOf(config.mcc) + "\n")
+		.append("IMSI MNC (Mobile Network Code): " + String.valueOf(config.mnc) + "\n");
+		return result.toString();
 	}
 	
 	public static String getTelStatusInfo(Context context) {
+		StringBuffer result = new StringBuffer();
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-		String networkType = String.valueOf(tm.getNetworkType()); // 获取网络类型
-		String model = Build.MODEL; // 手机型号
-		String number = tm.getLine1Number(); // 本机电话号码
-		String sdk = String.valueOf(Build.VERSION.SDK_INT); // SDK版本号
-		String os = Build.VERSION.RELEASE; // Firmware/OS 版本号
-		return networkType + "\n" + model + "\n" + number + "\n" + sdk + "\n" + os;
+		// 获取网络类型
+		result.append(String.valueOf(tm.getNetworkType()) + "\n")
+		// 手机型号
+		.append(Build.MODEL + "\n")
+		// 本机电话号码
+		.append(tm.getLine1Number() + "\n")
+		// SDK版本号
+		.append(String.valueOf(Build.VERSION.SDK_INT) + "\n")
+		// Firmware/OS 版本号
+		.append(Build.VERSION.RELEASE);
+		return result.toString();
 	}
 	
 	/**
@@ -114,20 +117,16 @@ public class HardwareUtil {
 	 * @return
 	 */
 	public static String getDisplayMetricsInfo(Context context) {
-	    String str = "";
-	    DisplayMetrics dm = new DisplayMetrics();
-	    dm = context.getApplicationContext().getResources().getDisplayMetrics();
-	    int screenWidth = dm.widthPixels;
-	    int screenHeight = dm.heightPixels;
-	    float density = dm.density;
-	    float xdpi = dm.xdpi;
-	    float ydpi = dm.ydpi;
-	    str += "The absolute width: " + String.valueOf(screenWidth) + "pixels\n";
-	    str += "The absolute heightin: " + String.valueOf(screenHeight) + "pixels\n";
-	    str += "The logical density of the display. : " + String.valueOf(density) + "\n";
-	    str += "X dimension : " + String.valueOf(xdpi) +"pixels per inch\n";
-	    str += "Y dimension : " + String.valueOf(ydpi) +"pixels per inch\n";
-	    return str;
+		StringBuffer result = new StringBuffer();
+	    DisplayMetrics dm = context.getApplicationContext().getResources().getDisplayMetrics();
+	    // 屏宽
+	    result.append("The absolute width: " + String.valueOf(dm.widthPixels) + "pixels\n")
+	    // 屏高
+	    .append("The absolute heightin: " + String.valueOf(dm.heightPixels) + "pixels\n")
+	    .append("The logical density of the display: " + String.valueOf(dm.density) + "\n")
+	    .append("X dimension : " + String.valueOf(dm.xdpi) +"pixels per inch\n")
+	    .append("Y dimension : " + String.valueOf(dm.ydpi) +"pixels per inch");
+	    return result.toString();
 	}
 
 }

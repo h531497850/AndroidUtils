@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.content.res.XmlResourceParser;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
-import android.hqs.helper.DebugHelper;
+import android.hqs.tool.LogcatTool;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 
@@ -28,17 +28,13 @@ import android.util.DisplayMetrics;
  * @author hqs2063594
  */
 public class BasicActivity extends Activity {
-	
-	private DebugHelper mDebug;
+	private final String Tag = LogcatTool.makeTag(getClass());
 	
 	/** 
 	 * 初始化activity，生成实例类名，可作为打印日志的标签，<b>注意：这时上下文(context)还没实现</b>，
 	 * 它是在系统调用{@link #onCreate(Bundle)}之后实现的。所以子类实现该构造时不要在构造方法里初始化一些需要上下文的实例。
 	 */
-	public BasicActivity() {
-		mDebug = new DebugHelper();
-		mDebug.makeTag(getClass());
-	}
+	public BasicActivity() {}
 	
 /*	*//**
 	 * 横竖屏切换时会调用该方法
@@ -193,78 +189,74 @@ public class BasicActivity extends Activity {
 	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
-	protected final void setDebug(boolean debug) {
-		mDebug.setDebug(debug);
-	}
-	
-	// 调试
+	/**蓝色，调试信息*/
 	protected final void debug(Object obj) {
-		mDebug.debug(obj);
+		LogcatTool.debug(Tag, obj);
 	}
 	protected final void debug(String methodName, Object obj) {
-		mDebug.debug(methodName, obj);
+		LogcatTool.debug(Tag, methodName, obj);
 	}
 	protected final void debug(String methodName, Throwable tr) {
-		mDebug.debug(methodName, tr);
+		LogcatTool.debug(Tag, methodName, tr);
 	}
 	
-	// 普通
+	/** 绿色，正常信息 */
 	protected final void info(Object obj) {
-		mDebug.info(obj);
+		LogcatTool.info(Tag, obj);
 	}
 	protected final void info(String methodName, Object obj) {
-		mDebug.info(methodName, obj);
+		LogcatTool.info(Tag, methodName, obj);
 	}
 	protected final void info(String methodName, Throwable tr) {
-		mDebug.info(methodName, tr);
+		LogcatTool.info(Tag, methodName, tr);
 	}
 	protected void info(String listName, byte[] list){
-		mDebug.info(listName, list);
+		LogcatTool.info(Tag, listName, list);
 	}
 	protected final void info(String methodName, String listName, byte[] list) {
-		mDebug.info(methodName, listName, list);
+		LogcatTool.info(Tag, methodName, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		mDebug.info(listName, list);
+		LogcatTool.info(Tag, listName, list);
 	}
 	protected final void info(String methodName, String listName, int[] list) {
-		mDebug.info(methodName, listName, list);
+		LogcatTool.info(Tag, methodName, listName, list);
 	}
 	
-	// 正常
+	/**黑色，冗长信息*/
 	protected final void verbose(Object obj) {
-		mDebug.verbose(obj);
+		LogcatTool.verbose(Tag, obj);
 	}
 	protected final void verbose(String methodName, Object obj) {
-		mDebug.verbose(methodName, obj);
+		LogcatTool.verbose(Tag, methodName, obj);
 	}
 	protected final void verbose(String methodName, Throwable tr) {
-		mDebug.verbose(methodName, tr);
+		LogcatTool.verbose(Tag, methodName, tr);
 	}
 	
-	// 错误
+	/**红色，错误信息*/
 	protected final void error(Object obj) {
-		mDebug.error(obj);
+		LogcatTool.error(Tag, obj);
 	}
 	protected final void error(String methodName, Object obj) {
-		mDebug.error(methodName, obj);
+		LogcatTool.error(Tag, methodName, obj);
 	}
 	protected final void error(String methodName, Throwable tr) {
-		mDebug.error(methodName, tr);
+		LogcatTool.error(Tag, methodName, tr);
 	}
 	protected final void error(String methodName, Object obj, Throwable tr) {
-		mDebug.error(methodName, obj, tr);
+		LogcatTool.error(Tag, methodName, obj, tr);
 	}
 	
-	// 不应发生的
+	/**紫色，不应发生的信息*/
 	protected final void wtf(Object obj) {
-		mDebug.wtf(obj);
+		LogcatTool.wtf(Tag, obj);
 	}
 	protected final void wtf(String methodName, Object obj) {
-		mDebug.wtf(methodName, obj);
+		LogcatTool.wtf(Tag, methodName, obj);
 	}
 	protected final void wtf(String methodName, Throwable tr) {
-		mDebug.wtf(methodName, tr);
+		LogcatTool.wtf(Tag, methodName, tr);
 	}
 	
 }

@@ -10,13 +10,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import android.util.Log;
 
 public class FileTool {
-	
-	private static final String TAG = "FileTool";
+	private static final String TAG = LogcatTool.makeTag(FileTool.class);
 	
 	public static void deleteFolder(File dir) {
         File to = new File(dir.getAbsolutePath() + System.currentTimeMillis());
@@ -90,6 +90,17 @@ public class FileTool {
 			}
 		}
 		return null;
+	}
+	
+	public static final String convertByte2Str(byte[] fileContent){
+		try {
+			String cycle = new String(fileContent, "UTF-8");
+			Log.d(TAG, "cycle = " + cycle);
+			return cycle;
+		} catch (UnsupportedEncodingException e) {
+			Log.d(TAG, "can not decode this file", e);
+			return null;
+		}
 	}
 	
 	public static String readNoteToHexStr(String fileName){

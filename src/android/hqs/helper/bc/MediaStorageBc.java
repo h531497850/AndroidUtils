@@ -3,7 +3,6 @@ package android.hqs.helper.bc;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hqs.helper.DynamicBroadcast;
 
 /**
  * SD卡存储 --> 广播接收器

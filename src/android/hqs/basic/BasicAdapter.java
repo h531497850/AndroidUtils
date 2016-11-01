@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.hqs.helper.DebugHelper;
 import android.hqs.helper.ViewHolderHelper;
+import android.hqs.tool.LogcatTool;
 import android.hqs.util.HandlerUtil;
 import android.os.Handler;
 import android.os.Looper;
@@ -24,12 +24,11 @@ import android.widget.AdapterView;
  *            数据集类型，可以在初始化时指定，也可以子类直接指定
  */
 public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
-	
-	private final Context context;
+	private final String Tag = LogcatTool.makeTag(getClass());
+	/**最好在生命周期结束时将上下文置为null，这样在系统GC时就不会造成某些内存碎片无法回收的问题，进而导致各种不必要的问题发生*/
+	private Context context;
 	
 	private final int layoutId;
-	
-	private DebugHelper mDebug;
 	
 	// 容器
 	private AdapterView<BasicAdapter<T>> mAdapterView;
@@ -76,10 +75,7 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		this.context = context;
 		this.layoutId = layoutId;
 		
-		mDebug = new DebugHelper();
-		mDebug.makeTag(getClass());
-		
-		mHandler = new AdapterHandler();
+		mHandler = new AdapterHandler(Looper.getMainLooper());
 		
 		setData(datas);
 	}
@@ -114,8 +110,8 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		
 		public static final byte LIST_VIEW_SROLL = 0x20;
 		
-		public AdapterHandler() {
-			super(Looper.getMainLooper());
+		public AdapterHandler(Looper looper) {
+			super(looper);
 		}
 		
 		@SuppressWarnings("unchecked")
@@ -189,10 +185,12 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		super.notifyDataSetChanged();
 	}
 
+	// ========================================================================================================
+	// ==================================== TODO 下面是公开的方法 ============================================
+	// ========================================================================================================
 	/**
 	 * 给定索引项在AdapterView中是否可见
 	 * @param index
-	 * @return
 	 */
 	public final boolean isItemVisible(int index){
 		if (mAdapterView == null) {
@@ -204,9 +202,6 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		return false;
 	}
 	
-	// ========================================================================================================
-	// ==================================== TODO 下面是公开的方法 ============================================
-	// ========================================================================================================
 	/** 获取实例类名 */
 	public final String getClsName() {
 		return getClass().getSimpleName();
@@ -214,7 +209,10 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	
 	/** 在界面的生命周期结束时调用该方法清理内存 */
 	public void destroy(){
-		mHandler.sendEmptyMessage(AdapterHandler.DATA_CLEAR);
+		datas.clear();
+		datas = null;
+		mAdapterView = null;
+		context = null;
 	}
 	
 	/**
@@ -263,78 +261,74 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
-	protected final void setDebug(boolean debug) {
-		mDebug.setDebug(debug);
-	}
-	
-	// 调试
+	/**蓝色，调试信息*/
 	protected final void debug(Object obj) {
-		mDebug.debug(obj);
+		LogcatTool.debug(Tag, obj);
 	}
 	protected final void debug(String methodName, Object obj) {
-		mDebug.debug(methodName, obj);
+		LogcatTool.debug(Tag, methodName, obj);
 	}
 	protected final void debug(String methodName, Throwable tr) {
-		mDebug.debug(methodName, tr);
+		LogcatTool.debug(Tag, methodName, tr);
 	}
 	
-	// 普通
+	/** 绿色，正常信息 */
 	protected final void info(Object obj) {
-		mDebug.info(obj);
+		LogcatTool.info(Tag, obj);
 	}
 	protected final void info(String methodName, Object obj) {
-		mDebug.info(methodName, obj);
+		LogcatTool.info(Tag, methodName, obj);
 	}
 	protected final void info(String methodName, Throwable tr) {
-		mDebug.info(methodName, tr);
+		LogcatTool.info(Tag, methodName, tr);
 	}
 	protected void info(String listName, byte[] list){
-		mDebug.info(listName, list);
+		LogcatTool.info(Tag, listName, list);
 	}
 	protected final void info(String methodName, String listName, byte[] list) {
-		mDebug.info(methodName, listName, list);
+		LogcatTool.info(Tag, methodName, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		mDebug.info(listName, list);
+		LogcatTool.info(Tag, listName, list);
 	}
 	protected final void info(String methodName, String listName, int[] list) {
-		mDebug.info(methodName, listName, list);
+		LogcatTool.info(Tag, methodName, listName, list);
 	}
 	
-	// 正常
+	/**黑色，冗长信息*/
 	protected final void verbose(Object obj) {
-		mDebug.verbose(obj);
+		LogcatTool.verbose(Tag, obj);
 	}
 	protected final void verbose(String methodName, Object obj) {
-		mDebug.verbose(methodName, obj);
+		LogcatTool.verbose(Tag, methodName, obj);
 	}
 	protected final void verbose(String methodName, Throwable tr) {
-		mDebug.verbose(methodName, tr);
+		LogcatTool.verbose(Tag, methodName, tr);
 	}
 	
-	// 错误
+	/**红色，错误信息*/
 	protected final void error(Object obj) {
-		mDebug.error(obj);
+		LogcatTool.error(Tag, obj);
 	}
 	protected final void error(String methodName, Object obj) {
-		mDebug.error(methodName, obj);
+		LogcatTool.error(Tag, methodName, obj);
 	}
 	protected final void error(String methodName, Throwable tr) {
-		mDebug.error(methodName, tr);
+		LogcatTool.error(Tag, methodName, tr);
 	}
 	protected final void error(String methodName, Object obj, Throwable tr) {
-		mDebug.error(methodName, obj, tr);
+		LogcatTool.error(Tag, methodName, obj, tr);
 	}
 	
-	// 不应发生的
+	/**紫色，不应发生的信息*/
 	protected final void wtf(Object obj) {
-		mDebug.wtf(obj);
+		LogcatTool.wtf(Tag, obj);
 	}
 	protected final void wtf(String methodName, Object obj) {
-		mDebug.wtf(methodName, obj);
+		LogcatTool.wtf(Tag, methodName, obj);
 	}
 	protected final void wtf(String methodName, Throwable tr) {
-		mDebug.wtf(methodName, tr);
+		LogcatTool.wtf(Tag, methodName, tr);
 	}
 	
 }

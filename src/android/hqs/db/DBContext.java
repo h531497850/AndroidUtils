@@ -8,6 +8,7 @@ import android.content.ContextWrapper;
 import android.database.DatabaseErrorHandler;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.hqs.tool.LogcatTool;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -16,8 +17,7 @@ import android.util.Log;
  * @author hqs2063594
  */
 public class DBContext extends ContextWrapper {
-
-	private final String TAG = "DBContext";
+	private final String TAG = LogcatTool.makeTag(getClass());
 	
 	private String dirName;
 	

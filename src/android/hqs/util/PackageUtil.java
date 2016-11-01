@@ -11,6 +11,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hqs.tool.LogcatTool;
 import android.hqs.tool.TextTool;
 import android.hqs.util.ShellUtils.CmdResult;
 import android.net.Uri;
@@ -50,8 +51,7 @@ import android.util.Log;
  * @author <a href="http://www.trinea.cn" target="_blank">Trinea</a> 2013-5-15
  */
 public class PackageUtil {
-
-    private static final String TAG                 = PackageUtil.class.getSimpleName();
+    private static final String TAG = LogcatTool.makeTag(PackageUtil.class);
     /**
      * 应用程序的安装位置设置值，与 {@link #PackageHelper}相同。
      */

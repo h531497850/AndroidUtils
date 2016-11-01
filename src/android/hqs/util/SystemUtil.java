@@ -3,6 +3,7 @@ package android.hqs.util;
 import java.lang.reflect.Method;
 
 import android.hqs.tool.CmdExecute;
+import android.hqs.tool.LogcatTool;
 import android.hqs.tool.TextTool;
 import android.util.Log;
 
@@ -13,8 +14,7 @@ import android.util.Log;
  *
  */
 public class SystemUtil {
-	
-	private static final String TAG = "SystemUtil";
+	private static final String TAG = LogcatTool.makeTag(SystemUtil.class);
 
 	/**
 	 * 获取操作系统版本。<br>

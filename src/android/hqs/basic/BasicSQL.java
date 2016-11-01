@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.hqs.tool.LogcatTool;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.hqs.helper.DebugHelper;
 
 /**
  * {@link #SQLiteOpenHelper}是一个辅助类，用来管理数据库的创建和版本他，它提供两个方面的功能 :
@@ -60,8 +60,7 @@ import android.hqs.helper.DebugHelper;
  * 
  */
 public abstract class BasicSQL extends SQLiteOpenHelper {
-	
-	private DebugHelper mDebug;
+	private final String Tag = LogcatTool.makeTag(getClass());
 	
 	/** 在子类中通过该方法获取父类的对象，来通知子类和父类，以达到线程安全的目的（由于数据库不能异步操作）。
 	 * read时不锁，提高效率，write时一定要锁；不过SQLiteOpenHelper已经锁住了。*/
@@ -97,8 +96,6 @@ public abstract class BasicSQL extends SQLiteOpenHelper {
     public BasicSQL(Context context, String sqlName, int version, CursorFactory factory) {  
         //必须通过super调用父类当中的构造函数  
         super(context, sqlName, factory, version);
-        mDebug = new DebugHelper();
-		mDebug.makeTag(getClass());
         // 以写的方式打开数据库对应的SQLiteDatabase对象 ，这个时候创建数据库
         //getWritableDatabase();
     }
@@ -199,78 +196,74 @@ public abstract class BasicSQL extends SQLiteOpenHelper {
 	// ========================================================================================================
 	// ==================================== TODO 下面是打印日志的方法 ============================================
 	// ========================================================================================================
-	protected final void setDebug(boolean debug) {
-		mDebug.setDebug(debug);
-	}
-	
-	// 调试
+	/**蓝色，调试信息*/
 	protected final void debug(Object obj) {
-		mDebug.debug(obj);
+		LogcatTool.debug(Tag, obj);
 	}
 	protected final void debug(String methodName, Object obj) {
-		mDebug.debug(methodName, obj);
+		LogcatTool.debug(Tag, methodName, obj);
 	}
 	protected final void debug(String methodName, Throwable tr) {
-		mDebug.debug(methodName, tr);
+		LogcatTool.debug(Tag, methodName, tr);
 	}
 	
-	// 普通
+	/** 绿色，正常信息 */
 	protected final void info(Object obj) {
-		mDebug.info(obj);
+		LogcatTool.info(Tag, obj);
 	}
 	protected final void info(String methodName, Object obj) {
-		mDebug.info(methodName, obj);
+		LogcatTool.info(Tag, methodName, obj);
 	}
 	protected final void info(String methodName, Throwable tr) {
-		mDebug.info(methodName, tr);
+		LogcatTool.info(Tag, methodName, tr);
 	}
 	protected void info(String listName, byte[] list){
-		mDebug.info(listName, list);
+		LogcatTool.info(Tag, listName, list);
 	}
 	protected final void info(String methodName, String listName, byte[] list) {
-		mDebug.info(methodName, listName, list);
+		LogcatTool.info(Tag, methodName, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		mDebug.info(listName, list);
+		LogcatTool.info(Tag, listName, list);
 	}
 	protected final void info(String methodName, String listName, int[] list) {
-		mDebug.info(methodName, listName, list);
+		LogcatTool.info(Tag, methodName, listName, list);
 	}
 	
-	// 正常
+	/**黑色，冗长信息*/
 	protected final void verbose(Object obj) {
-		mDebug.verbose(obj);
+		LogcatTool.verbose(Tag, obj);
 	}
 	protected final void verbose(String methodName, Object obj) {
-		mDebug.verbose(methodName, obj);
+		LogcatTool.verbose(Tag, methodName, obj);
 	}
 	protected final void verbose(String methodName, Throwable tr) {
-		mDebug.verbose(methodName, tr);
+		LogcatTool.verbose(Tag, methodName, tr);
 	}
 	
-	// 错误
+	/**红色，错误信息*/
 	protected final void error(Object obj) {
-		mDebug.error(obj);
+		LogcatTool.error(Tag, obj);
 	}
 	protected final void error(String methodName, Object obj) {
-		mDebug.error(methodName, obj);
+		LogcatTool.error(Tag, methodName, obj);
 	}
 	protected final void error(String methodName, Throwable tr) {
-		mDebug.error(methodName, tr);
+		LogcatTool.error(Tag, methodName, tr);
 	}
 	protected final void error(String methodName, Object obj, Throwable tr) {
-		mDebug.error(methodName, obj, tr);
+		LogcatTool.error(Tag, methodName, obj, tr);
 	}
 	
-	// 不应发生的
+	/**紫色，不应发生的信息*/
 	protected final void wtf(Object obj) {
-		mDebug.wtf(obj);
+		LogcatTool.wtf(Tag, obj);
 	}
 	protected final void wtf(String methodName, Object obj) {
-		mDebug.wtf(methodName, obj);
+		LogcatTool.wtf(Tag, methodName, obj);
 	}
 	protected final void wtf(String methodName, Throwable tr) {
-		mDebug.wtf(methodName, tr);
+		LogcatTool.wtf(Tag, methodName, tr);
 	}
 	
 }

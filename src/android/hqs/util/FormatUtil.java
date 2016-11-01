@@ -1,6 +1,7 @@
 package android.hqs.util;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -77,18 +78,51 @@ public class FormatUtil {
 	 * 例：SimpleDateFormat sdf = new SimpleDateFormat("现在是yyyy年MM月dd日 HH(hh)时   mm分 ss秒 S毫秒   星期E 今年的第D天  这个月的第F星期   今年的第w个星期   这个月的第W个星期  今天的a k1~24制时间 K0-11小时制时间 z时区"); 
 	 * 
 	 * @param time
-	 * @param pattern 就是上面参数的结合
+	 * @param pattern 就是上面参数的结合，如：yyyy-MM-dd；yyyy年MM月dd日；yyyy年MM月dd日 HH点   mm分 ss秒 SSS毫秒
 	 *            
-	 * @return
+	 * @return 格式化的时间
 	 */
 	public static String time(long time, String pattern) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
 		return dateFormat.format(new Date(time));
 	}
 	
+	/**
+	 * 格式化当前时间
+	 * @param pattern 格式为：yyyy-MM-dd；yyyy年MM月dd日
+	 * @return 格式化的时间
+	 */
 	public static String time(String pattern) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
 		return dateFormat.format(new Date());
+	}
+	
+	/** 
+	 * amount/total，然后格式化为百分比。
+	 * @return 百分比
+	 */
+	public static String percentage(long amount, long total) {
+		return percentage(((double) amount) / total);
+	}
+
+	/**
+	 * 将0..100除以100.0的数格式化为百分比。
+	 * @param percentage 0..100的整数
+	 * @return 百分比
+	 */
+	public static String percentage(int percentage) {
+		return percentage(((double) percentage) / 100.0);
+	}
+
+	/**
+	 * 将一个双精度0.0~1.0的数格式化为百分比。
+	 * @param percentage 0.0~1.0的双精度数
+	 * @return 百分比
+	 */
+	private static String percentage(double percentage) {
+		// TODO 注意：4.4以后不用android.support.v4.text.BidiFormatter，直接用android.text.BidiFormatter
+		android.support.v4.text.BidiFormatter bf = android.support.v4.text.BidiFormatter.getInstance();
+		return bf.unicodeWrap(NumberFormat.getPercentInstance().format(percentage));
 	}
 
 }

@@ -1,16 +1,18 @@
 package android.hqs.game.pintu;
 
-import com.android.hqs.R;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import com.android.hqs.R;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.hqs.tool.LogcatTool;
 import android.hqs.util.DimenUtil;
 import android.hqs.util.ImageConvertUtil;
 import android.os.Handler;
@@ -32,8 +34,7 @@ import android.widget.Toast;
  *
  */
 public class GamePintuLayout extends RelativeLayout implements OnClickListener {
-	
-	private final String TAG = GamePintuLayout.class.getSimpleName();
+	private static final String TAG = LogcatTool.makeTag(GamePintuLayout.class);
 
 	private int mColumn = 3;
 	/** 容器的内边距 */
@@ -50,7 +51,7 @@ public class GamePintuLayout extends RelativeLayout implements OnClickListener {
 	/** 游戏资源图片 */
 	private Drawable mGameDrawable;
 
-	private List<ImageBean> mItemBmps;
+	private List<ImageInfo> mItemBmps;
 
 	private boolean once;
 
@@ -62,8 +63,8 @@ public class GamePintuLayout extends RelativeLayout implements OnClickListener {
 
 	public interface GamePintuListener {
 		void nextLevel(int nextLevel);
-		void timechanged(int currentTime);
-		void gameover();
+		void timeChanged(int currentTime);
+		void gameOver();
 	}
 
 	private GamePintuListener mListener;
@@ -74,6 +75,39 @@ public class GamePintuLayout extends RelativeLayout implements OnClickListener {
 	 */
 	public void setOnGamePintuListener(GamePintuListener mListener) {
 		this.mListener = mListener;
+	}
+	
+	public class ImageInfo {
+		private int index;
+		private Bitmap bitmap;
+
+		public ImageInfo() {}
+
+		public ImageInfo(int index, Bitmap bitmap) {
+			this.index = index;
+			this.bitmap = bitmap;
+		}
+
+		public int getIndex() {
+			return index;
+		}
+
+		public void setIndex(int index) {
+			this.index = index;
+		}
+
+		public Bitmap getBitmap() {
+			return bitmap;
+		}
+
+		public void setBitmap(Bitmap bitmap) {
+			this.bitmap = bitmap;
+		}
+
+		@Override
+		public String toString() {
+			return "ImageBean [index=" + index + ", bitmap=" + bitmap + "]";
+		}
 	}
 
 	private int mLevel = 1;
@@ -88,11 +122,11 @@ public class GamePintuLayout extends RelativeLayout implements OnClickListener {
 				if (isGameSuccess || isGameOver || isPause)
 					return true;
 				if (mListener != null) {
-					mListener.timechanged(mTime);
+					mListener.timeChanged(mTime);
 				}
 				if (mTime == 0) {
 					isGameOver = true;
-					mListener.gameover();
+					mListener.gameOver();
 					return true;
 				}
 				mTime--;
@@ -204,16 +238,40 @@ public class GamePintuLayout extends RelativeLayout implements OnClickListener {
 		if (mGameBmp == null) {
 			return;
 		}
-		mItemBmps = ImageSplitterUtil.splitImage(mGameBmp, mColumn);
+		mItemBmps = splitImage(mGameBmp, mColumn);
 
 		// 使用sort完成我们的乱序
-		Collections.sort(mItemBmps, new Comparator<ImageBean>() {
+		Collections.sort(mItemBmps, new Comparator<ImageInfo>() {
 			@Override
-			public int compare(ImageBean a, ImageBean b) {
+			public int compare(ImageInfo a, ImageInfo b) {
 				return Math.random() > 0.5 ? 1 : -1;
 			}
 		});
-		
+	}
+	
+	/**
+	 * @param bitmap
+	 * @param piece
+	 *            切成piece*piece块
+	 * @return List<ImageBean>
+	 */
+	private List<ImageInfo> splitImage(Bitmap bitmap, int piece) {
+		List<ImageInfo> beans = new ArrayList<ImageInfo>();
+		int w = bitmap.getWidth();
+		int h = bitmap.getHeight();
+		int pieceWidth = Math.min(w, h) / piece;
+		for (int i = 0; i < piece; i++) {
+			for (int j = 0; j < piece; j++) {
+				ImageInfo bean = new ImageInfo();
+				bean.setIndex(j + i * piece);
+				int x = j * pieceWidth;
+				int y = i * pieceWidth;
+				bean.setBitmap(Bitmap.createBitmap(bitmap, x, y,
+						pieceWidth, pieceWidth));
+				beans.add(bean);
+			}
+		}
+		return beans;
 	}
 
 	/**

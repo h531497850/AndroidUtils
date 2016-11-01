@@ -7,11 +7,13 @@ import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.hardware.usb.UsbManager;
-import android.hqs.helper.DebugHelper;
+import android.hqs.tool.LogcatTool;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.wifi.WifiManager;
@@ -23,7 +25,8 @@ import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 
-public class BasicContext extends DebugHelper {
+public class BasicContext {
+	private final String Tag = LogcatTool.makeTag(getClass());
 	
 	private final Context context;
 	
@@ -38,7 +41,6 @@ public class BasicContext extends DebugHelper {
 			throw new NullPointerException("context can not be null!");
 		}
 		this.context = context;
-		makeTag(getClass());
 	}
 	
 	// ========================================================================================================
@@ -48,10 +50,17 @@ public class BasicContext extends DebugHelper {
 		return context;
 	}
 	
-	public final String getClsName(){
-		return getClass().getSimpleName();
+	/**
+	 * @return 应用的上下文
+	 */
+	protected Context getAppContext(){
+		return context.getApplicationContext();
 	}
-	
+
+	protected Looper getMainLooper(){
+		return context.getMainLooper();
+	}
+
 	protected final ContentResolver getContentResolver() {
 		return context.getContentResolver();
 	}
@@ -94,6 +103,14 @@ public class BasicContext extends DebugHelper {
 	 */
 	protected final SharedPreferences getSP(String name, int mode){
 		return context.getSharedPreferences(name, mode);
+	}
+	
+	protected final Configuration getConfiguration() {
+		return getRes().getConfiguration();
+	}
+	
+	protected final PackageManager getPackageManager(){
+		return context.getPackageManager();
 	}
 	
 	protected final WindowManager getWindowManager(){
@@ -166,15 +183,84 @@ public class BasicContext extends DebugHelper {
 		return context.getSystemService(name);
 	}
 	
-	/**
-	 * @return 应用的上下文
-	 */
-	protected Context getAppContext(){
-		return context.getApplicationContext();
+	// ========================================================================================================
+	// ==================================== TODO 下面是公开的方法  ===============================================
+	// ========================================================================================================
+	public final String getClsName(){
+		return getClass().getSimpleName();
 	}
-
-	protected Looper getMainLooper(){
-		return context.getMainLooper();
+	
+	// ========================================================================================================
+	// ==================================== TODO 下面是打印日志的方法 ============================================
+	// ========================================================================================================
+	/**蓝色，调试信息*/
+	protected final void debug(Object obj) {
+		LogcatTool.debug(Tag, obj);
 	}
-
+	protected final void debug(String methodName, Object obj) {
+		LogcatTool.debug(Tag, methodName, obj);
+	}
+	protected final void debug(String methodName, Throwable tr) {
+		LogcatTool.debug(Tag, methodName, tr);
+	}
+	
+	/** 绿色，正常信息 */
+	protected final void info(Object obj) {
+		LogcatTool.info(Tag, obj);
+	}
+	protected final void info(String methodName, Object obj) {
+		LogcatTool.info(Tag, methodName, obj);
+	}
+	protected final void info(String methodName, Throwable tr) {
+		LogcatTool.info(Tag, methodName, tr);
+	}
+	protected void info(String listName, byte[] list){
+		LogcatTool.info(Tag, listName, list);
+	}
+	protected final void info(String methodName, String listName, byte[] list) {
+		LogcatTool.info(Tag, methodName, listName, list);
+	}
+	protected void info(String listName, int[] list){
+		LogcatTool.info(Tag, listName, list);
+	}
+	protected final void info(String methodName, String listName, int[] list) {
+		LogcatTool.info(Tag, methodName, listName, list);
+	}
+	
+	/**黑色，冗长信息*/
+	protected final void verbose(Object obj) {
+		LogcatTool.verbose(Tag, obj);
+	}
+	protected final void verbose(String methodName, Object obj) {
+		LogcatTool.verbose(Tag, methodName, obj);
+	}
+	protected final void verbose(String methodName, Throwable tr) {
+		LogcatTool.verbose(Tag, methodName, tr);
+	}
+	
+	/**红色，错误信息*/
+	protected final void error(Object obj) {
+		LogcatTool.error(Tag, obj);
+	}
+	protected final void error(String methodName, Object obj) {
+		LogcatTool.error(Tag, methodName, obj);
+	}
+	protected final void error(String methodName, Throwable tr) {
+		LogcatTool.error(Tag, methodName, tr);
+	}
+	protected final void error(String methodName, Object obj, Throwable tr) {
+		LogcatTool.error(Tag, methodName, obj, tr);
+	}
+	
+	/**紫色，不应发生的信息*/
+	protected final void wtf(Object obj) {
+		LogcatTool.wtf(Tag, obj);
+	}
+	protected final void wtf(String methodName, Object obj) {
+		LogcatTool.wtf(Tag, methodName, obj);
+	}
+	protected final void wtf(String methodName, Throwable tr) {
+		LogcatTool.wtf(Tag, methodName, tr);
+	}
+	
 }

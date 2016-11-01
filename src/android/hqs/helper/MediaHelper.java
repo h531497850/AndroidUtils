@@ -6,20 +6,19 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import android.content.Context;
+import android.hqs.tool.LogcatTool;
 import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 public class MediaHelper {
-	
-	private static final String TAG = "MediaHelper";
+	private static final String TAG = LogcatTool.makeTag(MediaHelper.class);
 	
 	/**
 	 * 内置sdcard是否已挂载
@@ -55,12 +54,16 @@ public class MediaHelper {
 	 */
 	public static ArrayList<String> getExternalSDPaths() {
 		ArrayList<String> lResult = new ArrayList<String>();
+		Runtime rt = Runtime.getRuntime();
+		Process proc = null;
+		InputStream is = null;
+		InputStreamReader isr = null;
+		BufferedReader br = null;
 		try {
-			Runtime rt = Runtime.getRuntime();
-			Process proc = rt.exec("mount");
-			InputStream is = proc.getInputStream();
-			InputStreamReader isr = new InputStreamReader(is);
-			BufferedReader br = new BufferedReader(isr);
+			proc = rt.exec("mount");
+			is = proc.getInputStream();
+			isr = new InputStreamReader(is);
+			br = new BufferedReader(isr);
 			String line;
 			while ((line = br.readLine()) != null) {
 				// 有待进一步验证！ 
@@ -73,8 +76,29 @@ public class MediaHelper {
 					}
 				}
 			}
-			isr.close();
 		} catch (Exception e) {
+		} finally {
+			if (br != null) {
+				try {
+					br.close();
+				} catch (IOException e) {}
+			}
+			if (isr != null) {
+				try {
+					isr.close();
+				} catch (IOException e) {}
+			}
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {}
+			}
+			if (proc != null) {
+				proc.destroy();
+			}
+			if (rt != null) {
+				rt.gc();
+			}
 		}
 		return lResult;
 	}
@@ -115,8 +139,6 @@ public class MediaHelper {
 					Log.e(TAG, "execute cmd fail.");
 				}
 			}
-			br.close();
-			bis.close();
 		} catch (Exception e) {
 			Log.e(TAG, "can not find external sdcard!", e);
 			sdcardPaths.add(Environment.getExternalStorageDirectory().getAbsolutePath());
@@ -133,6 +155,9 @@ public class MediaHelper {
 			}
 			if (p != null) {
 				p.destroy();
+			}
+			if (run != null) {
+				run.gc();
 			}
 		}
 

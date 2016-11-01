@@ -87,6 +87,15 @@ public class ThreadFactory {
 	 * TimeUnit.SECONDS KEEP_ALIVE_TIME的单位为秒
 	 * 
 	 * handler拒绝策略（添加任务失败后如何处理该任务）. 
+	 * 
+	 * TODO 如果某任务空闲（休眠、等待）达到一秒钟，该任务会被放弃。
+	 * 
+	 * TODO 假如有500个任务
+	 *      1、执行1~5
+	 *      2、6~15放入BlockingQueue栈
+	 *      3、执行16~128
+	 *      4、129~500被放弃
+	 *      5、最终执行顺序为1~5/16~128/6~15
 	 */
 	public static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
 			CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE_TIME, TimeUnit.SECONDS,

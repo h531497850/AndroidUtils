@@ -3,7 +3,6 @@ package android.hqs.helper.bc;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hqs.helper.DynamicBroadcast;
 
 /**
  * 注册SD卡是挂载、卸载的广播

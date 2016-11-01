@@ -10,7 +10,8 @@ import android.net.Uri;
  * @author 胡青松
  */
 public class ProviderDB extends BasicSQL {
-	
+	private static ProviderDB mInstance = null;
+
 	public static final String DB_NAME = "hqs_provider.db";
 	private static final int VERSION = 1;
 	
@@ -46,10 +47,20 @@ public class ProviderDB extends BasicSQL {
 
 	}
 
-	public ProviderDB(Context context) {
+	private ProviderDB(Context context) {
 		super(context, DB_NAME, VERSION);
-		setDebug(true);
 	}
+	
+	public static ProviderDB getInstance(Context context) {
+	    // Use the application context, which will ensure that you 
+	    // don't accidentally leak an Activity's context.
+	    // See this article for more information: http://bit.ly/6LRzfx
+	    if (mInstance == null) {
+	      mInstance = new ProviderDB(context.getApplicationContext());
+	    }
+	    return mInstance;
+	}
+
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {

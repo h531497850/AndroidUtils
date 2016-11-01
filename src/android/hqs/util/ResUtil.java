@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.hqs.tool.LogcatTool;
 import android.util.Log;
 
 /**
@@ -14,8 +15,7 @@ import android.util.Log;
  *
  */
 public class ResUtil {
-	
-	private static final String TAG = "ResUtil";
+    private static final String TAG = LogcatTool.makeTag(ResUtil.class);
 	
 	/**
 	 * 通过标识符获取res/drawable文件夹下面的Drawable

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.content.IntentFilter.MalformedMimeTypeException;
 import android.hardware.Camera;
-import android.hqs.helper.DynamicBroadcast;
 import android.os.Build;
 
 /**

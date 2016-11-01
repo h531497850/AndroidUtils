@@ -13,7 +13,6 @@ public class ProviderActivity extends BasicActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setDebug(true);
 		getContentResolver().registerContentObserver(HqsTable.URI, true, mObserver);
 	}
 	
