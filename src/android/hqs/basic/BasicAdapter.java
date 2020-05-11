@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.hqs.helper.ViewHolderHelper;
-import android.hqs.tool.LogcatTool;
-import android.hqs.util.HandlerUtil;
+import android.hqs.gj.helper.ViewHolderHelper;
+import android.hqs.gj.tool.LogTool;
+import android.hqs.gj.util.HandlerUtil;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -24,8 +24,8 @@ import android.widget.AdapterView;
  *            数据集类型，可以在初始化时指定，也可以子类直接指定
  */
 public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
-	private final String Tag = LogcatTool.makeTag(getClass());
-	/**最好在生命周期结束时将上下文置为null，这样在系统GC时就不会造成某些内存碎片无法回收的问题，进而导致各种不必要的问题发生*/
+	private final String Tag = LogTool.makeTag(getClass());
+	/**内存管理都是jvm实现的，我们不需要各种置空处理*/
 	private Context context;
 	
 	private final int layoutId;
@@ -63,13 +63,15 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	 * @param clazz 类名，用于生成打印日志的标签，不能为空
 	 * @param layoutId 用户传入ItemView的layoutID，不能为空
 	 * @param datas 不能为空
+	 * @throws NullPointerException if the context is null.
+	 * @throws IllegalAccessError if the layoutId is invalid.
 	 */
 	public BasicAdapter(Context context, int layoutId, ArrayList<T> datas) {
 		if (context == null) {
 			throw new NullPointerException("context can not be null!");
 		}
 		if (layoutId <= 0) {
-			throw new NullPointerException("You are not assigned to layoutId!");
+			throw new IllegalAccessError("You are not assigned to layoutId!");
 		}
 		
 		this.context = context;
@@ -207,14 +209,6 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 		return getClass().getSimpleName();
 	}
 	
-	/** 在界面的生命周期结束时调用该方法清理内存 */
-	public void destroy(){
-		datas.clear();
-		datas = null;
-		mAdapterView = null;
-		context = null;
-	}
-	
 	/**
 	 * 初始化或数据变化时调用
 	 * @param datas 在没有数据的时候清空列表，有的时候刷新
@@ -263,72 +257,48 @@ public abstract class BasicAdapter<T> extends android.widget.BaseAdapter{
 	// ========================================================================================================
 	/**蓝色，调试信息*/
 	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+		LogTool.debug(Tag, obj);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
-	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
+	protected final void debug(Object obj, Throwable tr) {
+		LogTool.debug(Tag, obj, tr);
 	}
 	
 	/** 绿色，正常信息 */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogTool.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
-	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
+	protected final void info(Object obj, Throwable tr) {
+		LogTool.info(Tag, obj, tr);
 	}
 	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
+		LogTool.info(Tag, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
+		LogTool.info(Tag, listName, list);
 	}
 	
 	/**黑色，冗长信息*/
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogTool.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
-	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
+	protected final void verbose(Object obj, Throwable tr) {
+		LogTool.verbose(Tag, obj, tr);
 	}
 	
 	/**红色，错误信息*/
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogTool.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
-	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
+	protected final void error(Object obj, Throwable tr) {
+		LogTool.error(Tag, obj, tr);
 	}
 	
 	/**紫色，不应发生的信息*/
 	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
+		LogTool.wtf(Tag, obj);
 	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
+	protected final void wtf(Object obj, Throwable tr) {
+		LogTool.wtf(Tag, obj, tr);
 	}
 	
 }

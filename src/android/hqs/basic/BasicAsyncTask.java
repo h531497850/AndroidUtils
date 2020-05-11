@@ -1,101 +1,101 @@
 package android.hqs.basic;
 
+import com.vivo.android.util.LogUtil;
+
 import android.content.Context;
-import android.hqs.tool.LogcatTool;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 
 public abstract class BasicAsyncTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
-	private final String Tag = LogcatTool.makeTag(getClass());
+	private final String Tag = LogUtil.makeTag(getClass());
 
-	private Context context;
-	
+	protected final Context context;
+
+	/**
+	 * 构造
+	 * 
+	 * @param context
+	 *            不能为null
+	 * @throws NullPointerException
+	 *             如果上下文为null
+	 */
 	public BasicAsyncTask(Context context) {
+		if (context == null) {
+			throw new NullPointerException("context can not be null!");
+		}
 		this.context = context;
 	}
 
-	// ========================================================================================================
-	// ==================================== TODO 下面是公开的方法 ============================================
-	// ========================================================================================================
+	// =================================================================
+	// ====================== TODO public methods ======================
+	// =================================================================
 	/** 获取实例类名 */
 	public final String getClsName() {
 		return getClass().getSimpleName();
 	}
 
-	public Context getContext() {
-		return context;
+	public PackageManager getPackageManager() {
+		return context.getPackageManager();
 	}
-	
-	// ========================================================================================================
-	// ==================================== TODO 下面是打印日志的方法 ============================================
-	// ========================================================================================================
-	/**蓝色，调试信息*/
+
+	public PackageInfo getPackageInfo(String packageName, int flags) throws NameNotFoundException {
+		return context.getPackageManager().getPackageInfo(packageName, flags);
+	}
+
+	/**
+	 * 默认使用{@link Context#MODE_PRIVATE}模式
+	 * 
+	 * @param name
+	 *            xml文件名
+	 */
+	public SharedPreferences getSharedPreferences(String name) {
+		return context.getSharedPreferences(name, Context.MODE_PRIVATE);
+	}
+
+	public SharedPreferences getSharedPreferences(String name, int mode) {
+		return context.getSharedPreferences(name, mode);
+	}
+
+	// =================================================================
+	// =================== TODO print log methods ======================
+	// =================================================================
+	/** Blue, debug information */
 	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+		LogUtil.debug(Tag, obj);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
+
+	protected final void debug(Object obj, Throwable tr) {
+		LogUtil.debug(Tag, obj, tr);
 	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
-	}
-	
-	/** 绿色，正常信息 */
+
+	/** Green, normal information */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogUtil.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
+
+	protected final void info(Object obj, Throwable tr) {
+		LogUtil.info(Tag, obj, tr);
 	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
-	}
-	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	
-	/**黑色，冗长信息*/
+
+	/** Black, long message */
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogUtil.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
+
+	protected final void verbose(Object obj, Throwable tr) {
+		LogUtil.verbose(Tag, obj, tr);
 	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
-	}
-	
-	/**红色，错误信息*/
+
+	/** Red, error message */
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogUtil.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
+
+	protected final void error(Object obj, Throwable tr) {
+		LogUtil.error(Tag, obj, tr);
 	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
-	}
-	
-	/**紫色，不应发生的信息*/
-	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
-	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
-	}
-	
+
 }

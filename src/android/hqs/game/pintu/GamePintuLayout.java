@@ -12,9 +12,9 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.hqs.tool.LogcatTool;
-import android.hqs.util.DimenUtil;
-import android.hqs.util.ImageConvertUtil;
+import android.hqs.gj.tool.LogTool;
+import android.hqs.gj.util.DimenUtil;
+import android.hqs.gj.util.ImageConvertUtil;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -34,7 +34,7 @@ import android.widget.Toast;
  *
  */
 public class GamePintuLayout extends RelativeLayout implements OnClickListener {
-	private static final String TAG = LogcatTool.makeTag(GamePintuLayout.class);
+	private static final String TAG = LogTool.makeTag(GamePintuLayout.class);
 
 	private int mColumn = 3;
 	/** 容器的内边距 */

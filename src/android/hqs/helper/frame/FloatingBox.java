@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hqs.basic.BasicContext;
-import android.hqs.util.HandlerUtil;
+import android.hqs.gj.util.HandlerUtil;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;

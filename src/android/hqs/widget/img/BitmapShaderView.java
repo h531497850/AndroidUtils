@@ -7,7 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
-import android.hqs.util.ImageConvertUtil;
+import android.hqs.gj.util.ImageConvertUtil;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.widget.ImageView;

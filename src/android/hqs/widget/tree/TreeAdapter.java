@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.Context;
-import android.hqs.helper.ViewHolderHelper;
+import android.hqs.gj.helper.ViewHolderHelper;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;

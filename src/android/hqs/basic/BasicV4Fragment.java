@@ -3,7 +3,7 @@ package android.hqs.basic;
 import android.content.res.XmlResourceParser;
 import android.graphics.Movie;
 import android.graphics.drawable.Drawable;
-import android.hqs.tool.LogcatTool;
+import android.hqs.gj.tool.LogTool;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
@@ -18,7 +18,7 @@ import android.view.ViewGroup;
  *
  */
 public abstract class BasicV4Fragment extends Fragment {
-	private final String Tag = LogcatTool.makeTag(getClass());
+	private final String Tag = LogTool.makeTag(getClass());
 
 	/**
 	 * 用户传入布局文件的id。<br>
@@ -213,72 +213,48 @@ public abstract class BasicV4Fragment extends Fragment {
 	// ========================================================================================================
 	/**蓝色，调试信息*/
 	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+		LogTool.debug(Tag, obj);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
-	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
+	protected final void debug(Object obj, Throwable tr) {
+		LogTool.debug(Tag, obj, tr);
 	}
 	
 	/** 绿色，正常信息 */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogTool.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
-	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
+	protected final void info(Object obj, Throwable tr) {
+		LogTool.info(Tag, obj, tr);
 	}
 	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
+		LogTool.info(Tag, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
+		LogTool.info(Tag, listName, list);
 	}
 	
 	/**黑色，冗长信息*/
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogTool.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
-	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
+	protected final void verbose(Object obj, Throwable tr) {
+		LogTool.verbose(Tag, obj, tr);
 	}
 	
 	/**红色，错误信息*/
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogTool.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
-	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
+	protected final void error(Object obj, Throwable tr) {
+		LogTool.error(Tag, obj, tr);
 	}
 	
 	/**紫色，不应发生的信息*/
 	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
+		LogTool.wtf(Tag, obj);
 	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
+	protected final void wtf(Object obj, Throwable tr) {
+		LogTool.wtf(Tag, obj, tr);
 	}
 	
 }

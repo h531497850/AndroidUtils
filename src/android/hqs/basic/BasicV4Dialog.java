@@ -5,10 +5,11 @@ import android.content.DialogInterface.OnKeyListener;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
-import android.hqs.tool.LogcatTool;
+import android.hqs.gj.tool.LogTool;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -29,7 +30,8 @@ import android.view.WindowManager.LayoutParams;
  */
 public abstract class BasicV4Dialog extends DialogFragment implements
 		OnClickListener, OnLongClickListener, OnKeyListener {
-	private final String Tag = LogcatTool.makeTag(getClass());
+	private final String TAG = LogTool.makeTag(BasicV4Dialog.class, getClass());
+	private final String Tag = LogTool.makeTag(getClass());
 	
 	/**
 	 * 用户传入布局文件的id。<br>
@@ -80,13 +82,13 @@ public abstract class BasicV4Dialog extends DialogFragment implements
 		super();
 		layoutId = setLayoutId();
 		mViews = new SparseArray<View>();
-		info("initialize----constructor done");
+		Log.i(TAG, "initialize----constructor done");
 	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
+		Log.i(TAG, "onCreate()");
 		super.onCreate(savedInstanceState);
-		info("onCreate()");
 		/*
 		 * 控制显示的对话框是否可撤销。用该方法而不是直接调用Dialog.setCancelable(boolean)，因为DialogFragment的改变基于此的行为。
 		 */
@@ -95,7 +97,7 @@ public abstract class BasicV4Dialog extends DialogFragment implements
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		info("onCreateView()");
+		Log.i(TAG, "onCreateView()");
 		View view = getView();
 		if(view == null) {
 			/*
@@ -122,7 +124,7 @@ public abstract class BasicV4Dialog extends DialogFragment implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		info("onDestroy()");
+		Log.i(TAG, "onDestroy() done");
 	}
 	
 	@Override
@@ -266,72 +268,48 @@ public abstract class BasicV4Dialog extends DialogFragment implements
 	// ========================================================================================================
 	/**蓝色，调试信息*/
 	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+		LogTool.debug(Tag, obj);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
-	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
+	protected final void debug(Object obj, Throwable tr) {
+		LogTool.debug(Tag, obj, tr);
 	}
 	
 	/** 绿色，正常信息 */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogTool.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
-	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
+	protected final void info(Object obj, Throwable tr) {
+		LogTool.info(Tag, obj, tr);
 	}
 	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
+		LogTool.info(Tag, listName, list);
 	}
 	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
+		LogTool.info(Tag, listName, list);
 	}
 	
 	/**黑色，冗长信息*/
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogTool.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
-	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
+	protected final void verbose(Object obj, Throwable tr) {
+		LogTool.verbose(Tag, obj, tr);
 	}
 	
 	/**红色，错误信息*/
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogTool.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
-	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
+	protected final void error(Object obj, Throwable tr) {
+		LogTool.error(Tag, obj, tr);
 	}
 	
 	/**紫色，不应发生的信息*/
 	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
+		LogTool.wtf(Tag, obj);
 	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
+	protected final void wtf(Object obj, Throwable tr) {
+		LogTool.wtf(Tag, obj, tr);
 	}
 	
 }

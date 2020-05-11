@@ -1,11 +1,20 @@
 package android.hqs.basic;
 
+import java.io.File;
+import java.util.List;
+import java.util.Set;
+
+import com.vivo.android.tool.TextTool;
+import com.vivo.android.util.LogUtil;
+
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.hqs.tool.LogcatTool;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * {@link #SQLiteOpenHelper}是一个辅助类，用来管理数据库的创建和版本他，它提供两个方面的功能 :
@@ -16,7 +25,8 @@ import android.database.sqlite.SQLiteOpenHelper;
  * </ul>
  * 
  * {@link #onCreate(SQLiteDatabase)}第一次创建数据库调用；</br>
- * {@link #onUpgrade(SQLiteDatabase, int, int)}数据库升级调用<p>
+ * {@link #onUpgrade(SQLiteDatabase, int, int)}数据库升级调用
+ * <p>
  * 
  * <ul>
  * 数据类型
@@ -56,214 +66,701 @@ import android.database.sqlite.SQLiteOpenHelper;
  * <li>当一个线程访问object的一个synchronized(this)同步代码块时，它就获得了这个object的对象锁。结果，其它线程对该object对象所有同步代码部分的访问都被暂时阻塞。</li>
  * </ul>
  * 
- * @author hqs2063594
+ * @author huqingsong
  * 
  */
 public abstract class BasicSQL extends SQLiteOpenHelper {
-	private final String Tag = LogcatTool.makeTag(getClass());
-	
-	/** 在子类中通过该方法获取父类的对象，来通知子类和父类，以达到线程安全的目的（由于数据库不能异步操作）。
-	 * read时不锁，提高效率，write时一定要锁；不过SQLiteOpenHelper已经锁住了。*/
-	protected final byte[] lock = new byte[0];
-	
+	private static final String TAG = LogUtil.makeTag("BasicSQL");
+	private final String sqlName;
+
+	private final String Tag = LogUtil.makeTag(getClass());
+
+	public static final class MapTable {
+		/** m:map, k:key, v:value */
+		public static final String TABLE_NAME = "mkv";
+
+		/** data type INTEGER(int) */
+		public static final String KEY_ID = "_id";
+		/** data type text */
+		public static final String KEY_NAME = "m_key";
+		/** data type text */
+		public static final String KEY_VALUE = "m_value";
+		/** data type INTEGER(long) */
+		public static final String KEY_ANALYSIS_DATE = "analysis_date";
+
+		public static final String DEFAULT_SORT_ORDER = "analysis_date asc";
+
+		public static final String CREATE_SQL = TABLE_NAME + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+				+ KEY_NAME + " TEXT," + KEY_VALUE + " TEXT," + KEY_ANALYSIS_DATE + " INTEGER);";
+
+		/** Query the SQL statement for each column of a row */
+		// public static final String QUERY_SQL = "SELECT * FROM " + TABLE_NAME
+		// + " WHERE " + KEY_ID + "=? AND " + KEY_NAME
+		// + "=? AND " + KEY_VALUE + "=? AND " + KEY_ANALYSIS_DATE + "=?";
+	}
+
+	private boolean close = true;
+
+	private boolean debug = false;
+
+	protected Context context;
+
 	/**
-	 * @param context   上下文对象 	不能为空
-     * @param sqlName   数据库名称 	不能为空
-	 * @param clazz 类名，用于生成打印日志的标签，不能为空
+	 * @param context
+	 *            上下文对象 不能为空
+	 * @param sqlName
+	 *            数据库名称 不能为空
+	 * @param clazz
+	 *            类名，用于生成打印日志的标签，不能为空
 	 */
-	public BasicSQL(Context context, String sqlName){  
-        this(context, sqlName, 1);  
-    }
-	
+	public BasicSQL(Context context, String sqlName) {
+		this(context, sqlName, 1);
+	}
+
 	/**
-	 * @param context   上下文对象 	不能为空
-     * @param sqlName   数据库名称 	不能为空
-	 * @param clazz 类名，用于生成打印日志的标签，不能为空
+	 * @param context
+	 *            上下文对象 不能为空
+	 * @param sqlName
+	 *            数据库名称 不能为空
+	 * @param clazz
+	 *            类名，用于生成打印日志的标签，不能为空
 	 * @param version
+	 *            数据库版本号
 	 */
-	public BasicSQL(Context context, String sqlName, int version){  
-        this(context, sqlName, version, null);  
-    }
-	
-	/** 
-     * 在{@link #SQLiteOpenHelper}的子类当中，必须有该构造函数 
-     * @param context   上下文对象 	不能为空
-     * @param sqlName   数据库名称 	不能为空
-	 * @param clazz 类名，用于生成打印日志的标签，不能为空
-     * @param version   当前数据库的版本，值必须是整数并且是递增的状态 
-     * @param factory 
-     */  
-    public BasicSQL(Context context, String sqlName, int version, CursorFactory factory) {  
-        //必须通过super调用父类当中的构造函数  
-        super(context, sqlName, factory, version);
-        // 以写的方式打开数据库对应的SQLiteDatabase对象 ，这个时候创建数据库
-        //getWritableDatabase();
-    }
-    
-	// ========================================================================================================
-	// ======================================= TODO 下面是公布给子类的方法 =======================================
-	// ========================================================================================================
+	public BasicSQL(Context context, String sqlName, int version) {
+		this(context, sqlName, version, null);
+	}
+
 	/**
-     * 创建表的方法，如果没有该表，请创建。
-     * @param table 表名
-     * @param columnsSql 列Sql语句
-     */
-    protected final void create(SQLiteDatabase db, String table, String columnsSql) {
-    	db.execSQL("create table if not exists " + table + " (" + columnsSql + ")");
-	}
-    /**
-     * 为表添加列
-     * @param db
-     * @param table
-     * @param columnSql 注意：<b>仅一列</b>
-     */
-    protected final void addColumn(SQLiteDatabase db, String table, String columnSql) {
-    	db.execSQL("ALTER TABLE " + table + " ADD COLUMN "+ columnSql);
-    }
-    
-    /**
-	 * 删除表的方法。在数据（比如表结构等）有更新时，将以前老版的数据取出，然后删除老版的各个表，然后重新创建表，
-	 * 最后把以前的数据重新加入新表下。 如果该表存在，删除。
-	 * @param table 表名
+	 * 在{@link #SQLiteOpenHelper}的子类当中，必须有该构造函数
+	 * 
+	 * @param context
+	 *            上下文对象 不能为空
+	 * @param sqlName
+	 *            数据库名称 不能为空
+	 * @param clazz
+	 *            类名，用于生成打印日志的标签，不能为空
+	 * @param version
+	 *            当前数据库的版本，值必须是整数并且是递增的状态
 	 */
-    protected final void drop(SQLiteDatabase db, String table) {
-    	db.execSQL("DROP TABLE IF EXISTS " + table);
+	public BasicSQL(Context context, String sqlName, int version, CursorFactory factory) {
+		// 必须通过super调用父类当中的构造函数
+		super(context, sqlName, factory, version);
+		if (context == null) {
+			throw new NullPointerException("context is null.");
+		}
+		this.context = context;
+		this.sqlName = sqlName;
 	}
-    
-    
-    protected final void deleteRows(SQLiteDatabase db, String table) {
-    	db.delete(table, null, null);
+
+	// =================================================================
+	// ======= TODO These methods are visible to the subclass ==========
+	// =================================================================
+
+	protected void createBasicTable(SQLiteDatabase db) {
+		create(db, MapTable.CREATE_SQL);
 	}
-    
-    protected final void deleteRow(SQLiteDatabase db, String table, String whereClause, String[] whereArgs) {
-    	db.delete(table, whereClause, whereArgs);
+
+	protected void dropBasicTable(SQLiteDatabase db) {
+		drop(db, MapTable.TABLE_NAME);
 	}
-    
-	// ========================================================================================================
-	// ============================= TODO 下面是公开的方法，注意：数据库已经创建完成 ================================
-	// ========================================================================================================
-    /**
-     * 清空所选表内的所有数据。同步方法是同步块(this)的简写形式，this为当前实例对象。<br>
-     * <b>该操作比较耗时，最好不要在主线程调用该方法。</b>
-     * @param table
-     */
-    public final void deleteRows(String table) {
-    	getWritableDatabase().delete(table, null, null);
-	}
-    /**
-     * <b>该操作比较耗时，最好不要在主线程调用该方法。</b>
-     * @param table
-     * @param whereClause
-     * @param whereArgs
-     */
-    public final void deleteRow(String table, String whereClause, String[] whereArgs) {
-    	getWritableDatabase().delete(table, whereClause, whereArgs);
-	}
-    /**
-     * 更新行<br>
-     * <b>该操作比较耗时，最好不要在主线程调用该方法。</b>
-     * @param table
-     * @param key 要更新的列
-     * @param value 更新为该值
-     * @param whereClause = 要更新的列标识 + "=?"
-     * @param whereArgs {}
-     */
-    public final void updateRow(String table, String key, String value, String whereClause, String[] whereArgs){
-    	ContentValues cv = null;
+
+	/**
+	 * 为表添加列
+	 * 
+	 * @param column
+	 *            注意：<b>仅一列</b>
+	 */
+	protected void addColumn(SQLiteDatabase db, String table, String column) {
 		try {
-			final SQLiteDatabase mydb = getWritableDatabase();
-			cv = new ContentValues();
-			cv.put(key, value);
-			mydb.update(table, cv, whereClause, whereArgs);
-		} catch (Exception e) {
-			error("updateRow", "Update row fail!", e);
-		} finally {
-			if (cv != null) { // 保证能清除HashMap的数据
-				cv.clear();
-				cv = null;
+			db.execSQL("ALTER TABLE " + table + " ADD COLUMN " + column);
+		} catch (SQLException e) {
+			if (debug) {
+				Log.d(TAG, "Add column failed.", e);
 			}
 		}
-    }
+	}
 
-	// ========================================================================================================
-	// ==================================== TODO 下面是公开的方法 ===============================================
-	// ========================================================================================================
-	/** 获取实例类名 */
-	public final String getClsName() {
+	public int bulkInsert(String table, List<ContentValues> values) {
+		info("bulkInsert table = " + table);
+		if (values == null || values.size() <= 0) {
+			return 0;
+		}
+		int numValues = values.size();
+		SQLiteDatabase db = getWritableDatabase();
+		try {
+			info("Start insert to " + table + " table " + numValues + " data.");
+			db.beginTransaction();
+			for (ContentValues cv : values) {
+				db.insert(table, null, cv);
+			}
+			db.setTransactionSuccessful();
+			info("Insert to " + table + " table " + numValues + " data success.");
+			return numValues;
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Bulk insert ", e);
+			}
+			return -1;
+		} finally {
+			db.endTransaction();
+			if (close) {
+				db.close();
+			}
+		}
+	}
+
+	/**
+	 * 创建表的方法，如果没有该表，请创建。
+	 * 
+	 * @param tableSQL
+	 *            表名 + 列数据
+	 */
+	protected void create(SQLiteDatabase db, String tableSQL) {
+		try {
+			db.execSQL("CREATE TABLE IF NOT EXISTS " + tableSQL);
+		} catch (SQLException e) {
+			if (debug) {
+				Log.d(TAG, "Create table failed.", e);
+			}
+		}
+	}
+
+	/**
+	 * 删除表的方法。在数据（比如表结构等）有更新时，将以前老版的数据取出， 然后删除老版的各个表，然后重新创建表， 最后把以前的数据重新加入新表下。
+	 * 如果该表存在，删除。
+	 * 
+	 * @param table
+	 *            表名
+	 */
+	protected void drop(SQLiteDatabase db, String table) {
+		try {
+			db.execSQL("DROP TABLE IF EXISTS " + table);
+		} catch (SQLException e) {
+			if (debug) {
+				Log.d(TAG, "Drop table failed.", e);
+			}
+		}
+	}
+
+	// =================================================================
+	// ======================= TODO public method ======================
+	// =================================================================
+	/**
+	 * <b>This operation is time-consuming and it is better not to call this
+	 * method on the primary thread.</b>
+	 */
+	public int delete(String table) {
+		return delete(table, null, null);
+	}
+
+	/**
+	 * <b>This operation is time-consuming and it is better not to call this
+	 * method on the primary thread.</b>
+	 */
+	public void delete(Set<String> tables) {
+		SQLiteDatabase db = null;
+		try {
+			db = getWritableDatabase();
+			db.beginTransaction();
+			for (String table : tables) {
+				db.delete(table, null, null);
+			}
+			db.setTransactionSuccessful();
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Bulk delete tablbs failed.", e);
+			}
+		} finally {
+			if (db != null) {
+				db.endTransaction();
+				if (close) {
+					db.close();
+				}
+			}
+		}
+	}
+
+	/**
+	 * <b>This operation is time-consuming and it is better not to call this
+	 * method on the primary thread.</b>
+	 */
+	public int delete(String table, String whereClause, String[] whereArgs) {
+		SQLiteDatabase db = null;
+		try {
+			db = getWritableDatabase();
+			return db.delete(table, whereClause, whereArgs);
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Delete data failed.", e);
+			}
+			return -1;
+		} finally {
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/** Gets the class name of the instance */
+	public String getClsName() {
 		return getClass().getSimpleName();
 	}
-	
-	// ========================================================================================================
-	// ==================================== TODO 下面是打印日志的方法 ============================================
-	// ========================================================================================================
-	/**蓝色，调试信息*/
-	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+
+	public File getDatabaseFile() {
+		return context.getDatabasePath(sqlName);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
+
+	public String getDatabasePath() {
+		return getDatabaseFile().getAbsolutePath();
 	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
+
+	/** Gets the amount of data saved in the current database. */
+	public long getDatabaseSize() {
+		return getDatabaseFile().length();
 	}
-	
-	/** 绿色，正常信息 */
+
+	public boolean isDatabaseExists() {
+		return getDatabaseFile().exists();
+	}
+
+	public long insert(String table, ContentValues values) {
+		return insert(table, null, values);
+	}
+
+	public long insert(String table, String nullColumnHack, ContentValues values) {
+		SQLiteDatabase db = null;
+		try {
+			db = getWritableDatabase();
+			return db.insertWithOnConflict(table, nullColumnHack, values, SQLiteDatabase.CONFLICT_NONE);
+		} catch (SQLException e) {
+			if (debug) {
+				Log.w(TAG, "Error inserting " + values, e);
+			}
+			return -1;
+		} finally {
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	public Cursor query(String table, String[] columns) {
+		return query(table, columns, null, null, null, null, null);
+	}
+
+	public Cursor query(String table, String[] columns, String selection, String[] selectionArgs) {
+		return query(table, columns, selection, selectionArgs, null, null, null);
+	}
+
+	public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String orderBy) {
+		return query(table, columns, selection, selectionArgs, null, null, orderBy);
+	}
+
+	public Cursor query(String table, String[] columns, String selection, String[] selectionArgs, String groupBy,
+			String having, String orderBy) {
+		SQLiteDatabase db = null;
+		try {
+			db = getWritableDatabase();
+			return db.query(table, columns, selection, selectionArgs, groupBy, having, orderBy);
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Query data failed.", e);
+			}
+			return null;
+		} finally {
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/**
+	 * Update row<br>
+	 * <b>This operation is time-consuming and it is better not to call this
+	 * method on the primary thread.</b>
+	 * 
+	 * @param whereArgs
+	 *            Columns to update
+	 * @param values
+	 *            Update to this value
+	 * @param whereClause
+	 *            = to update the column identifier + "=?"
+	 */
+	public int update(String table, ContentValues values, String whereClause, String[] whereArgs) {
+		SQLiteDatabase db = null;
+		try {
+			db = getWritableDatabase();
+			return db.updateWithOnConflict(table, values, whereClause, whereArgs, SQLiteDatabase.CONFLICT_NONE);
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Update data failed.", e);
+			}
+			return -1;
+		} finally {
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/**
+	 * TODO Save data to {@link MapTable}.
+	 * <p>
+	 * <b>This operation is time-consuming, it is best not to call the method in
+	 * the main thread.</b>
+	 * 
+	 * @param name
+	 *            Key, can not be empty.
+	 * @param value
+	 *            To save the data, no matter what type of data, first converted
+	 *            to a string, and converted to the required type when take it
+	 *            out of the database.
+	 */
+	public boolean setValue(String name, String value) {
+		if (TextTool.isEmpty(name)) {
+			return false;
+		}
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			String[] columns = { MapTable.KEY_NAME };
+			String[] selectionArgs = { name };
+			db = getWritableDatabase();
+			cur = db.query(MapTable.TABLE_NAME, columns, MapTable.KEY_NAME + "=?", selectionArgs, null, null, null);
+			ContentValues cv = new ContentValues();
+			cv.put(MapTable.KEY_NAME, name);
+			cv.put(MapTable.KEY_VALUE, value);
+			cv.put(MapTable.KEY_ANALYSIS_DATE, System.currentTimeMillis());
+			long rowId;
+			if (cur != null && cur.getCount() > 0) {
+				// If saved, update
+				rowId = db.update(MapTable.TABLE_NAME, cv, MapTable.KEY_NAME + "=?", selectionArgs);
+			} else {
+				// If not saved, save directly
+				rowId = db.insert(MapTable.TABLE_NAME, null, cv);
+			}
+			return rowId > -1;
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Save data failed.", e);
+			}
+			return false;
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/**
+	 * Value added 1
+	 */
+	public boolean setValue(String name) {
+		if (TextTool.isEmpty(name)) {
+			return false;
+		}
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			String[] columns = { MapTable.KEY_VALUE };
+			String[] selectionArgs = { name };
+			db = getWritableDatabase();
+			cur = db.query(MapTable.TABLE_NAME, columns, MapTable.KEY_NAME + "=?", selectionArgs, null, null, null);
+			ContentValues cv = new ContentValues();
+			cv.put(MapTable.KEY_NAME, name);
+			cv.put(MapTable.KEY_ANALYSIS_DATE, System.currentTimeMillis());
+			long rowId;
+			if (cur != null && cur.getCount() > 0 && cur.moveToFirst()) {
+				// If saved, update
+				cv.put(MapTable.KEY_VALUE, cur.getInt(cur.getColumnIndex(MapTable.KEY_VALUE)) + 1);
+				rowId = db.update(MapTable.TABLE_NAME, cv, MapTable.KEY_NAME + "=?", selectionArgs);
+			} else {
+				// If not saved, save directly
+				cv.put(MapTable.KEY_VALUE, 1);
+				rowId = db.insert(MapTable.TABLE_NAME, null, cv);
+			}
+			return rowId > -1;
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Save data failed.", e);
+			}
+			return false;
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/**
+	 * TODO Get string data in {@link MapTable} based on key.
+	 * <p>
+	 * <b>This operation is time-consuming, it is best not to call the method in
+	 * the main thread.</b>
+	 * 
+	 * @param name
+	 * @return If key exists, returns the saved string data; otherwise, returns
+	 *         defValue.
+	 */
+	public String getString(String name, String defValue) {
+		if (TextTool.isEmpty(name)) {
+			return defValue;
+		}
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			// 返回列
+			String[] columns = { MapTable.KEY_VALUE };
+			String[] selectionArgs = { name };
+			db = getReadableDatabase();
+			cur = db.query(MapTable.TABLE_NAME, columns, MapTable.KEY_NAME + "=?", selectionArgs, null, null, null);
+			// Cursor initialization position is not necessarily 0
+			if (cur != null && cur.getCount() > 0 && cur.moveToFirst()) {
+				return cur.getString(0);
+			}
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Failed to get data.", e);
+			}
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+		return defValue;
+	}
+
+	public int getInt(String name, int defValue) {
+		if (TextTool.isEmpty(name)) {
+			return defValue;
+		}
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			// 返回列
+			String[] columns = { MapTable.KEY_VALUE };
+			String[] selectionArgs = { name };
+			db = getReadableDatabase();
+			cur = db.query(MapTable.TABLE_NAME, columns, MapTable.KEY_NAME + "=?", selectionArgs, null, null, null);
+			// Cursor initialization position is not necessarily 0
+			if (cur != null && cur.getCount() > 0 && cur.moveToFirst()) {
+				return cur.getInt(0);
+			}
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Failed to get data.", e);
+			}
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+		return defValue;
+	}
+
+	public long getLong(String name, long defValue) {
+		if (TextTool.isEmpty(name)) {
+			return defValue;
+		}
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			// 返回列
+			String[] columns = { MapTable.KEY_VALUE };
+			String[] selectionArgs = { name };
+			db = getReadableDatabase();
+			cur = db.query(MapTable.TABLE_NAME, columns, MapTable.KEY_NAME + "=?", selectionArgs, null, null, null);
+			// Cursor initialization position is not necessarily 0
+			if (cur != null && cur.getCount() > 0 && cur.moveToFirst()) {
+				return cur.getLong(0);
+			}
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Failed to get data.", e);
+			}
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+		return defValue;
+	}
+
+	/**
+	 * 获取该条数据上一次保存的时间，默认返回0
+	 */
+	public long getValueDate(String name) {
+		if (TextTool.isEmpty(name)) {
+			return 0;
+		}
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			String[] columns = { MapTable.KEY_ANALYSIS_DATE };
+			String[] selectionArgs = { name };
+			db = getReadableDatabase();
+			cur = db.query(MapTable.TABLE_NAME, columns, MapTable.KEY_NAME + "=?", selectionArgs, null, null, null);
+			// Cursor initialization position is not necessarily 0
+			if (cur != null && cur.getCount() > 0 && cur.moveToFirst()) {
+				return cur.getLong(0);
+			}
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Failed to get data.", e);
+			}
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * @param max
+	 *            How many data can be stored maximum?
+	 * @param limit
+	 *            How many data can be left when deleting?
+	 * @return Whether to delete successfully or not to maximum limit
+	 */
+	public boolean delete(String table, String dateColumn, String order, int max, int limit) {
+		SQLiteDatabase db = null;
+		Cursor cur = null;
+		try {
+			String[] columns = { dateColumn };
+			db = getReadableDatabase();
+			cur = db.query(table, columns, null, null, null, null, order);
+			if (cur == null) {
+				return true;
+			}
+			int count = cur.getCount();
+			info("mkv has " + count + " datas.");
+			// Number of data entries to delete
+			if (count - max <= 0) {
+				return true;
+			}
+			int delete = count - limit;
+			info("mkv to delete the number of entries: " + delete);
+			// Move to the position of the next data that reaches the
+			// limit, and then get the time for this.
+			cur.moveToPosition(delete);
+			long limitTime = cur.getLong(cur.getColumnIndex(dateColumn));
+			// Delete data before this time
+			String where = dateColumn + "<?";
+			String[] whereArgs = new String[] { String.valueOf(limitTime) };
+			db.delete(table, where, whereArgs);
+			info("mkv to delete data success.");
+			return true;
+		} catch (Exception e) {
+			if (debug) {
+				Log.w(TAG, "Delete map table data failed.", e);
+			}
+			return false;
+		} finally {
+			if (cur != null && !cur.isClosed()) {
+				cur.close();
+			}
+			if (close && db != null) {
+				db.close();
+			}
+		}
+	}
+
+	/**
+	 * @param max
+	 *            How many data can be stored maximum?
+	 * @param limit
+	 *            How many data can be left when deleting?
+	 * @return Whether to delete successfully or not to maximum limit
+	 */
+	public boolean delete(int max, int limit) {
+		return delete(MapTable.TABLE_NAME, MapTable.KEY_ANALYSIS_DATE, MapTable.DEFAULT_SORT_ORDER, max, limit);
+	}
+
+	/**
+	 * @return Is the database closed after use? Default close.
+	 */
+	public boolean isClose() {
+		return close;
+	}
+
+	/**
+	 * @param close
+	 *            Do you want to close the database? Multi process,
+	 *            multi-threaded, do not close the database.Default close.
+	 */
+	protected void setClose(boolean close) {
+		this.close = close;
+	}
+
+	/**
+	 * @param debug
+	 *            Do you want to print error stack info? Default not print.
+	 */
+	protected void setDebug(boolean debug) {
+		this.debug = debug;
+	}
+
+	// =================================================================
+	// ====================== TODO print log method ====================
+	// =================================================================
+    /** Blue, debug information */
+    protected final void debug(Object obj) {
+        LogUtil.debug(Tag, obj);
+    }
+
+    protected final void debug(Throwable tr) {
+        LogUtil.debug(Tag, tr);
+    }
+
+    protected final void debug(Object obj, Throwable tr) {
+        LogUtil.debug(Tag, obj, tr);
+    }
+
+	/** Green, normal information */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogUtil.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
+
+	protected final void info(Object obj, Throwable tr) {
+		LogUtil.info(Tag, obj, tr);
 	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
-	}
-	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	
-	/**黑色，冗长信息*/
+
+	/** Black, long message */
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogUtil.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
+
+	protected final void verbose(Object obj, Throwable tr) {
+		LogUtil.verbose(Tag, obj, tr);
 	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
-	}
-	
-	/**红色，错误信息*/
+
+	/** Red, error message */
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogUtil.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
+
+	protected final void error(Object obj, Throwable tr) {
+		LogUtil.error(Tag, obj, tr);
 	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
-	}
-	
-	/**紫色，不应发生的信息*/
-	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
-	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
-	}
-	
+
 }

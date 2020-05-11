@@ -1,5 +1,7 @@
 package android.hqs.basic;
 
+import com.vivo.android.util.LogUtil;
+
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.ContentResolver;
@@ -8,8 +10,8 @@ import android.content.DialogInterface.OnKeyListener;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
-import android.hqs.tool.LogcatTool;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -24,102 +26,105 @@ import android.view.Window;
 import android.view.WindowManager.LayoutParams;
 
 /**
- * 对话框默认居中显示，基于activity界面显示。<p>
+ * 对话框默认居中显示，基于activity界面显示。
+ * <p>
  * 要对话框内各组件的点击事件就得在界面初始化完成之后注册OnClickListener，而长按不是必须的；
  * 又由于各种事件响应后得将一些相关的数据传到需要的地方，比如activity等，所有还得设置回调接口
+ * 
  * @author hqs2063594
  *
  */
-public abstract class BasicDialog extends DialogFragment implements OnTouchListener,
-		OnClickListener, OnLongClickListener, OnKeyListener {
-	private final String Tag = LogcatTool.makeTag(getClass());
-	
+public abstract class BasicDialog extends DialogFragment
+		implements OnTouchListener, OnClickListener, OnLongClickListener, OnKeyListener {
+	private static final String TAG = LogUtil.makeTag("BasicDialog");
+
+	private final String Tag = LogUtil.makeTag(getClass());
+
 	/**
 	 * 用户传入布局文件的id。<br>
 	 * 注意：该数据不能随意修改，更不能为0。
 	 */
 	private int layoutId;
-	
+
 	/**
 	 * 软引用对话框消失后里面存储的View很可能被释放，这样可以降低内存消耗
 	 *//*
-	protected SoftReference<View> mCacheView;*/
-	
+		 * protected SoftReference<View> mCacheView;
+		 */
+
 	/**
-	 * 这里没有使用软引用，软应用对话框消失后里面存储的View很可能被释放，这样可以降低内存消耗，
-	 * 所有注意释放内存
+	 * 这里没有使用软引用，软应用对话框消失后里面存储的View很可能被释放，这样可以降低内存消耗， 所有注意释放内存
 	 */
 	private View mConvertView;
 	/**
 	 * 存放小组件的数组
 	 */
 	private SparseArray<View> mViews;
-	
+
 	private Point mPoint;
 	private int mGravity = Gravity.CENTER;
-	
+
 	private boolean isTouch;
-	
+
 	/** 在这里设置你的布局id */
 	protected abstract int setLayoutId();
-	
+
 	/**
 	 * 初始化构造方法，DialogFragment必须有一个无参的构造方法，如果不实现该构造会报错；并初始化数据。
 	 */
-	public BasicDialog(){
+	public BasicDialog() {
 		super();
 		layoutId = setLayoutId();
 		mViews = new SparseArray<View>();
-		info("initialize----constructor done");
+		Log.i(TAG, "initialize----constructor done");
 	}
-	
-	
-	/**View已创建完毕，可在此控制View或注册事件等*/
+
+	/** View已创建完毕，可在此控制View或注册事件等 */
 	protected abstract void initComponents();
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		info("onCreate()", "start");
+		Log.i(TAG, "onCreate()");
 		/*
-		 * 控制显示的对话框是否可撤销。用该方法而不是直接调用Dialog.setCancelable(boolean)，因为DialogFragment的改变基于此的行为。
+		 * 控制显示的对话框是否可撤销。用该方法而不是直接调用Dialog.setCancelable(boolean)，
+		 * 因为DialogFragment的改变基于此的行为。
 		 */
-		//setCancelable(false);
+		// setCancelable(false);
 	}
-	
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		info("onCreateView()", "start");
-		if(mConvertView == null) {
+		Log.i(TAG, "onCreateView()");
+		if (mConvertView == null) {
 			/*
-			 * 这里传入3个参数
-			 * 原因：
-			 * 1、2个参数ViewGroup root=null 时XmlPullParser parser的布局里面设置的各种width、height等将毫无意义；
+			 * 这里传入3个参数 原因： 1、2个参数ViewGroup root=null 时XmlPullParser
+			 * parser的布局里面设置的各种width、height等将毫无意义；
 			 * 2、3个参数的attachToRoot如果为false表示返回的view时根据layoutId加载的ItemView，
-			 * 	  true将返回parent并且将ItemView直接加载到parent里面。
+			 * true将返回parent并且将ItemView直接加载到parent里面。
 			 */
 			mConvertView = inflater.inflate(layoutId, container, false);
 		}
 		mConvertView.setOnTouchListener(this);
 		initComponents();
-		
-		if(mPoint != null) {
-			setAttributes(mGravity,mPoint.x, mPoint.y);
+
+		if (mPoint != null) {
+			setAttributes(mGravity, mPoint.x, mPoint.y);
 		}
 		setBackground(Color.TRANSPARENT);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
+
 		setOnKeyListener(this);
 		return mConvertView;
 	}
-	
+
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
 		mConvertView = null;
-		info("onDestroy()", "done");
+		Log.i(TAG, "onDestroy()");
 	}
-	
+
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		switch (event.getAction()) {
@@ -132,10 +137,10 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 		}
 		return false;
 	}
-	
+
 	@Override
 	public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0){
+		if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
 			// 该方法已经判断了对话框是否处于显示状态所以不必自己判断
 			dismiss();
 			// true表示监听者触发了该事件，false表示没有触发
@@ -144,37 +149,39 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 		// true表示监听者触发了该事件，false表示没有触发
 		return false;
 	}
-	
+
 	protected void finishActivity() {
 		if (getActivity() != null) {
 			getActivity().finish();
 		}
 	}
+
 	protected ContentResolver getContentResolver() {
 		if (getActivity() != null) {
 			return getActivity().getContentResolver();
 		}
 		return null;
 	}
-	
-	private Window getWindow(){
+
+	private Window getWindow() {
 		return getDialog().getWindow();
 	}
-	
-	// ========================================================================================================
-	// ========================================= TODO 下面是公布给子类的方法 =====================================
-	// ========================================================================================================
+
+	// =================================================================
+	// ======== TODO These methods are visible to the subclass =========
+	// =================================================================
 	/**
 	 * 首先将各种参数保存下来以便下次在
 	 * {@link #onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)}
 	 * 方法中复用
+	 * 
 	 * @param gravity
 	 * @param x
 	 * @param y
 	 */
-	protected void setAttributes(int gravity, int x, int y){
+	protected void setAttributes(int gravity, int x, int y) {
 		mGravity = gravity;
-		if(mPoint == null) {
+		if (mPoint == null) {
 			mPoint = new Point(x, y);
 		} else {
 			mPoint.set(x, y);
@@ -186,23 +193,25 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 		getWindow().setAttributes(params);
 	}
 
-	protected void setOnKeyListener(OnKeyListener listener){
+	protected void setOnKeyListener(OnKeyListener listener) {
 		getDialog().setOnKeyListener(listener);
 	}
-	
-	protected void requestWindowFeature(int featureId){
+
+	protected void requestWindowFeature(int featureId) {
 		getDialog().requestWindowFeature(featureId);
 	}
-	
-	protected void setBackground(int color){
+
+	protected void setBackground(int color) {
 		getWindow().setBackgroundDrawable(new ColorDrawable(color));
 	}
-	
-	protected void setBackgroundResource(int resid){
+
+	protected void setBackgroundResource(int resid) {
 		getWindow().setBackgroundDrawableResource(resid);
 	}
+
 	/**
 	 * 查询组件并设置点击和长按监听
+	 * 
 	 * @param id
 	 * @return
 	 */
@@ -213,54 +222,65 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 		v.setOnTouchListener(this);
 		return v;
 	}
-	
-	// ========================================================================================================
-	// =========================================== TODO 下面是公开的方法 ========================================
-	// ========================================================================================================
+
+	// =================================================================
+	// ======================= TODO public methods =====================
+	// =================================================================
 	public View getConvertView() {
 		return mConvertView;
 	}
+
 	public boolean isTouch() {
 		return isTouch;
 	}
+
 	/**
-	 * @param manager activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
+	 * @param manager
+	 *            activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
 	 */
 	public void show(FragmentManager manager) {
 		if (!isAdded()) {
 			show(manager, getClass().getName());
 		}
 	}
-	
+
 	/**
-	 * @param manager activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
-	 * @param x 相对于gravity的X轴坐标
-	 * @param y 相对于gravity的Y轴坐标
+	 * @param manager
+	 *            activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
+	 * @param x
+	 *            相对于gravity的X轴坐标
+	 * @param y
+	 *            相对于gravity的Y轴坐标
 	 */
 	public void show(FragmentManager manager, int x, int y) {
-		show(manager,Gravity.CENTER, x, y);
+		show(manager, Gravity.CENTER, x, y);
 	}
-	
+
 	/**
-	 * @param manager activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
-	 * @param gravity 相对位置
-	 * @param x 相对于gravity的X轴坐标
-	 * @param y 相对于gravity的Y轴坐标
+	 * @param manager
+	 *            activity和Fragment之间的的交互接口，由activity传入。注意：该数据不能随意修改，更不能为空。
+	 * @param gravity
+	 *            相对位置
+	 * @param x
+	 *            相对于gravity的X轴坐标
+	 * @param y
+	 *            相对于gravity的Y轴坐标
 	 */
 	public void show(FragmentManager manager, int gravity, int x, int y) {
 		setAttributes(gravity, x, y);
 		show(manager);
 	}
-	
-	public void close(){
+
+	public void close() {
 		if (isVisible()) {
 			dismiss();
 		}
 	}
-	
+
 	/**
 	 * 通过该方法获取各itemView内的各种小组件如：TextView，ImageView，ImageButton等
-	 * @param comId 
+	 * 
+	 * @param comId
 	 * @return 你想要的View组件
 	 */
 	@SuppressWarnings("unchecked")
@@ -273,87 +293,53 @@ public abstract class BasicDialog extends DialogFragment implements OnTouchListe
 		}
 		return (T) Component;
 	}
-	
+
 	public final void setVisibility(int visibility) {
 		mConvertView.setVisibility(visibility);
 	}
-	
+
 	/** 获取实例类名 */
 	public final String getClsName() {
 		return getClass().getSimpleName();
 	}
-	
-	// ========================================================================================================
-	// ==================================== TODO 下面是打印日志的方法 ============================================
-	// ========================================================================================================
-	/**蓝色，调试信息*/
+
+	// =================================================================
+	// ===================== TODO print log methods ====================
+	// =================================================================
+	/** Blue, debug information */
 	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+		LogUtil.debug(Tag, obj);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
+
+	protected final void debug(Object obj, Throwable tr) {
+		LogUtil.debug(Tag, obj, tr);
 	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
-	}
-	
-	/** 绿色，正常信息 */
+
+	/** Green, normal information */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogUtil.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
+
+	protected final void info(Object obj, Throwable tr) {
+		LogUtil.info(Tag, obj, tr);
 	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
-	}
-	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	
-	/**黑色，冗长信息*/
+
+	/** Black, long message */
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogUtil.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
+
+	protected final void verbose(Object obj, Throwable tr) {
+		LogUtil.verbose(Tag, obj, tr);
 	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
-	}
-	
-	/**红色，错误信息*/
+
+	/** Red, error message */
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogUtil.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
+
+	protected final void error(Object obj, Throwable tr) {
+		LogUtil.error(Tag, obj, tr);
 	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
-	}
-	
-	/**紫色，不应发生的信息*/
-	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
-	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
-	}
-	
+
 }

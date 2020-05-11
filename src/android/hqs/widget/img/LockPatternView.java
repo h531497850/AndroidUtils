@@ -9,7 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.hqs.tool.TextTool;
+import android.hqs.gj.tool.TextTool;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;

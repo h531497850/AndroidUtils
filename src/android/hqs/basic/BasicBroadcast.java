@@ -1,90 +1,57 @@
 package android.hqs.basic;
 
+import com.vivo.android.util.LogUtil;
+
 import android.content.BroadcastReceiver;
-import android.hqs.tool.LogcatTool;
 
 public abstract class BasicBroadcast extends BroadcastReceiver {
-	private final String Tag = LogcatTool.makeTag(getClass());
+	private final String Tag = LogUtil.makeTag(getClass());
 
-	// ========================================================================================================
-	// ==================================== TODO 下面是公开的方法 ===============================================
-	// ========================================================================================================
-	/** 获取实例类名 */
+	// =================================================================
+	// ======================= TODO public method ======================
+	// =================================================================
+	/** Fetch instance class name */
 	public final String getClsName() {
 		return getClass().getSimpleName();
 	}
-	
-	// ========================================================================================================
-	// ==================================== TODO 下面是打印日志的方法 ============================================
-	// ========================================================================================================
-	/**蓝色，调试信息*/
+
+	// =================================================================
+	// ====================== TODO print log method ====================
+	// =================================================================
+	/** Blue, debug information */
 	protected final void debug(Object obj) {
-		LogcatTool.debug(Tag, obj);
+		LogUtil.debug(Tag, obj);
 	}
-	protected final void debug(String methodName, Object obj) {
-		LogcatTool.debug(Tag, methodName, obj);
+
+	protected final void debug(Object obj, Throwable tr) {
+		LogUtil.debug(Tag, obj, tr);
 	}
-	protected final void debug(String methodName, Throwable tr) {
-		LogcatTool.debug(Tag, methodName, tr);
-	}
-	
-	/** 绿色，正常信息 */
+
+	/** Green, normal information */
 	protected final void info(Object obj) {
-		LogcatTool.info(Tag, obj);
+		LogUtil.info(Tag, obj);
 	}
-	protected final void info(String methodName, Object obj) {
-		LogcatTool.info(Tag, methodName, obj);
+
+	protected final void info(Object obj, Throwable tr) {
+		LogUtil.info(Tag, obj, tr);
 	}
-	protected final void info(String methodName, Throwable tr) {
-		LogcatTool.info(Tag, methodName, tr);
-	}
-	protected void info(String listName, byte[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, byte[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	protected void info(String listName, int[] list){
-		LogcatTool.info(Tag, listName, list);
-	}
-	protected final void info(String methodName, String listName, int[] list) {
-		LogcatTool.info(Tag, methodName, listName, list);
-	}
-	
-	/**黑色，冗长信息*/
+
+	/** Black, long message */
 	protected final void verbose(Object obj) {
-		LogcatTool.verbose(Tag, obj);
+		LogUtil.verbose(Tag, obj);
 	}
-	protected final void verbose(String methodName, Object obj) {
-		LogcatTool.verbose(Tag, methodName, obj);
+
+	protected final void verbose(Object obj, Throwable tr) {
+		LogUtil.verbose(Tag, obj, tr);
 	}
-	protected final void verbose(String methodName, Throwable tr) {
-		LogcatTool.verbose(Tag, methodName, tr);
-	}
-	
-	/**红色，错误信息*/
+
+	/** Red, error message */
 	protected final void error(Object obj) {
-		LogcatTool.error(Tag, obj);
+		LogUtil.error(Tag, obj);
 	}
-	protected final void error(String methodName, Object obj) {
-		LogcatTool.error(Tag, methodName, obj);
+
+	protected final void error(Object obj, Throwable tr) {
+		LogUtil.error(Tag, obj, tr);
 	}
-	protected final void error(String methodName, Throwable tr) {
-		LogcatTool.error(Tag, methodName, tr);
-	}
-	protected final void error(String methodName, Object obj, Throwable tr) {
-		LogcatTool.error(Tag, methodName, obj, tr);
-	}
-	
-	/**紫色，不应发生的信息*/
-	protected final void wtf(Object obj) {
-		LogcatTool.wtf(Tag, obj);
-	}
-	protected final void wtf(String methodName, Object obj) {
-		LogcatTool.wtf(Tag, methodName, obj);
-	}
-	protected final void wtf(String methodName, Throwable tr) {
-		LogcatTool.wtf(Tag, methodName, tr);
-	}
-	
+
 }
