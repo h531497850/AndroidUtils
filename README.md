@@ -1,4 +1,4 @@
-# util_base
-Some base log/activity/service/adpter/broadcast/dialog etc. And some utilities class.
+# Android 常用组件
+1、将常用组件（activity/service/adpter/broadcast/dialog）再次封装便于使用
+2、提供一些辅助工具类：LogUtils等
 
-Welcome peoples and add.
